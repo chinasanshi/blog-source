@@ -2,8 +2,9 @@
 #+AUTHOR:      Kyle Three Stones
 #+DATE:        <2018-06-22 Fri 07:19>
 #+EMAIL:       kyleemail@163.com
-#+OPTIONS:     H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t TeX:t
+#+OPTIONS:     H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t tex:t
 #+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
+#+STARTUP: latexpreview
 #+TAGS:        机器学习, 
 #+CATEGORIES:  机器学习
 
@@ -22,15 +23,19 @@
 监督学习
 
 *** support vector machines - SVM
+*SVM 的基本思想就是求解能够正确划分训练数据集并且几何间隔最大的分离超平面。* 
+
 先写算法的最终求解方法，步骤。认为此时已经知晓所有知识。
 
-支撑向量机，通过核函数将数据映射到高维空间只是增大了数据线性可分的可能性，但无法确保映射后一定线性可分。因此需要使用
-\(\ell 1\)正则化来修正模型；同时也使得分割线对 outliers 不那么敏感。
-
 **** 算法步骤
-1. 构造含约束的最优化问题
+1. 构造含约束的最优化问题；根据 KKT 条件求得分离超平面的表达式
 2. 求得相应的对偶问题
-3. 利用 SMO 算法高效求解对偶问题
+3. 利用 SMO 算法高效求解对偶问题，得到分离超平面的参数值
+4. 依据分离超平面来处理新样本
+
+再写一些术语的解释
+
+**** 算法演进过程：
 
 \begin{align}
 max_{w, b} \quad & \gamma \\
@@ -74,11 +79,6 @@ b^* & = y^{(i)} - \sum_{i=1}^m \alpha_i^* y^{(i)} K(x^{(i)}, x^{(j)}) \\
 f(x) & = sign \left( \sum_{i=1}^m \alpha_i^* y^{(i)} K(x \cdot x^{(i)}) + b^* \right)
 \end{align}
 
-
-再写一些术语的解释
-*SVM 的基本思想就是求解能够正确划分训练数据集并且几何间隔最大的分离超平面。* 
-
-**** 算法演进过程：
 1. 因为 SVM 学习算法的目标是最大化几何间隔\(\gamma\)，所以构建相应的模型，其目标函数表示为最大化几何间隔，同时约束每个训
    练样本距离分离超平面的距离大于该几何间隔。
 2. 由于最终需要求解的是分离超平面的权重，所以需要利用几何间隔与函数间隔的关系，让目标函数中显示出现分离超平面的权重；即
@@ -97,7 +97,7 @@ f(x) & = sign \left( \sum_{i=1}^m \alpha_i^* y^{(i)} K(x \cdot x^{(i)}) + b^* \r
 7. 如果可以将特征都转换成內积的表示形式，就可以使用核函数。转换成內积形式以后，将表达式中的\(x\)转换成\(\phi(x)\) 就表示
    使用了核函数。而且并不需要知道\(\phi(x)\)的具体表达式，只需要代入\(\phi(x)^T \phi(z)\)乘积的结果，即选取的核函数的表
    达式\(K(\phi(x),\phi(z))\)就可以，这样将大大简化计算。
-8. 另外转换成对偶问题后，可以使用 SMO（sequential minimal optimization）算法来高效求解。
+8. 另外转换成对偶问题后，可以使用 SMO（sequential minimal optimization）算法来高效求解参数\(\alpha_1,\ldots,\alpha_m\)
 
 **** 术语解释
 ***** 原问题 - 对偶问题
@@ -144,7 +144,7 @@ min_w max_{\alpha,\beta:\alpha_i \geq 0} \ \mathcal{L}(w, \alpha, \beta) = p^*
 等价，再对\(\theta_p(w)\)参数\(w\)求最小，即为原始问题。也就是说，两者是等价的，相当于同一个问题。
 
 \begin{align}
-\theta_p(w) = \left\{ \begin{array} f(w) & 如果w满足原约束 \\
+\theta_p(w) = \left\{ \begin{array}{} f(w) & 如果w满足原约束 \\
 \infty & 否则 \end{array} \right.
 \end{align}
 
@@ -176,9 +176,9 @@ h_i(w) & = 0, \quad i=1,2,\ldots,l \\
 对偶问题是拉格朗日函数的极大极小问题。首先求\(\mathcal{L}(w,b,\xi,\alpha,\mu)\)对\(w,b,\xi\)求极小，分别求导并令导数为0
 
 \begin{align}
-\nabla_w \mathcal{L}(w,b,\xi,\alpha,\mu) = w - \sum_{i=1}^m \alpha_i y^{(i)} x^{(i)} = 0 \\
-\nabla_b \mathcal{L}(w,b,\xi,\alpha,\mu) = -\sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
-\nabla_{\xi_i} \mathcal{L}(w,b,\xi,\alpha,\mu) = C - \alpha_i -\mu_i = 0
+\nabla_w \mathcal{L}(w,b,\xi,\alpha,\mu) & = w - \sum_{i=1}^m \alpha_i y^{(i)} x^{(i)} = 0 \\
+\nabla_b \mathcal{L}(w,b,\xi,\alpha,\mu) & = -\sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
+\nabla_{\xi_i} \mathcal{L}(w,b,\xi,\alpha,\mu) & = C - \alpha_i -\mu_i = 0
 \end{align}
 
 得到
@@ -192,15 +192,16 @@ C- \alpha_i -\mu_i = 0
 将结果带入原问题的拉格朗日函数，
 
 \begin{align}
-min_{w,b,\xi} \mathcal{L}(w,b,\xi,\alpha,\mu) = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j y^{(i)}y^{(j)}(x^{(i)}x^{(j)}) +
-\sum_{i=1}^m\alpha_i
+min_{w,b,\xi} \mathcal{L}(w,b,\xi,\alpha,\mu) = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j 
+y^{(i)}y^{(j)} \langle x^{(i)}x^{(j)} \rangle + \sum_{i=1}^m\alpha_i
 \end{align}
 
 再对\(min_{w,b,\xi}\mathcal{L}(w,b,\xi,\alpha,\mu)\)求参数\(\alpha\)的极大，就得到了对偶问题目标函数的表达式，连同上面得
 到的约束，共同构成对偶问题：
 
 \begin{align}
-max_\alpha \quad & = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j y^{(i)}y^{(j)}(x^{(i)}x^{(j)}) + \sum_{i=1}^m\alpha_i \\
+max_\alpha \quad & = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j y^{(i)}y^{(j)} 
+\langle x^{(i)}x^{(j)}\rangle + \sum_{i=1}^m\alpha_i \\
 s.t. \quad & = \sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
 & C - \alpha_i - \mu_i = 0, \quad i=1,2,\ldots,m \\
 & \alpha_i = 0, \quad i=1,2,\ldots,m \\
@@ -208,8 +209,8 @@ s.t. \quad & = \sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
 \end{align}
 
 最后利用倒数第三个等式约束消去变量\(\mu_i\)，只留下变量\(\alpha_i\)，得到\(0 \leq \alpha_i \leq C\)，同时将目标函数中的
-输入属性的內积\(x^{(i)},x^{(j)}\)替换成核函数\(\phi(x^{(i)}),\phi(x^{(j)})\)，并且直接使用核函数的最终形式\(K(x^{(i)},x^{(j)})\)得到对偶问题的最
-终形式
+输入属性的內积\(\langle x^{(i)},x^{(j)} \rangle\)替换成核函数\(\langle \phi(x^{(i)}),\phi(x^{(j)}) \rangle\)，并且直接使
+用核函数的最终形式\(K(x^{(i)},x^{(j)})\)得到对偶问题的最终形式
 
 \begin{align}
 max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
@@ -260,6 +261,9 @@ TODO 举一个核函数和映射函数表达式的例子
 *常用核函数:* 高斯核函数（Gaussian kernel function）\[ K(x,z) = exp \left( -\frac{||x-z||^2}{2\sigma^2} \right) \] 多项
 式核函数（polynomial kernel function）\[ K(x,z) = (x^T z +c)^d \] 字符串核函数（string kernel function）
 
+支撑向量机，通过核函数将数据映射到高维空间只是增大了数据线性可分的可能性，但无法确保映射后一定线性可分。因此需要使用
+\(\ell 1\)正则化来修正模型；同时也使得分割线对 outliers 不那么敏感。
+
 ***** 决策函数
 决策函数即算法最终得到的分离超平面的表达式。分离超平面\(w^*,b^*\)的表达式由原问题通过满足 KKT 条件求解得到，而表达式中参
 数具体的值由对偶问题通过 SMO 算法求得。原问题可以表示为
@@ -280,20 +284,20 @@ s.t. \quad & -[y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] \leq 0, \
 解满足 KKT 条件
 
 \begin{align}
-\partial_w\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = w^* - \sum_{i=1}^m \alpha_i^* y^{(i)} x^{(i)} = 0 \\
-\partial_b\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = -\sum_{i=1}{m} \alpha_i^* y^{(i)} = 0 \\
-\partial_{\xi}\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = C - \alpha^* - \mu^* = 0 \\
-\alpha_i^* [y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] = 0 \\
-\mu_i^* \xi_i^* = 0 \\
--[y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] \leq 0 \\
--\xi_i^* \leq 0 \\
-\alpha_i^* \geq 0 \\
-\mu_i^* \geq 0
+& \partial_w\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = w^* - \sum_{i=1}^m \alpha_i^* y^{(i)} x^{(i)} = 0 \\
+& \partial_b\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = -\sum_{i=1}{m} \alpha_i^* y^{(i)} = 0 \\
+& \partial_{\xi}\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = C - \alpha^* - \mu^* = 0 \\
+& \alpha_i^* [y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] = 0 \\
+& \mu_i^* \xi_i^* = 0 \\
+& -[y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] \leq 0 \\
+& -\xi_i^* \leq 0 \\
+& \alpha_i^* \geq 0 \\
+& \mu_i^* \geq 0
 \end{align}
 
 求解上面的方程，\(w^*\)较易求解。再由 KKT 对偶互补条件可知，当存在\(\alpha_i^*\)满足\(0 < \alpha_i^* < C\)时，
-\(y^{(i)}(w^* \cdot x^{(i)} + b^)* - 1 = 0\)，从而可求得\(b^*\)。其中会利用一个小技巧\(y^{(i)} \cdot y^{(i)} = 1\)最终得
-到
+\(y^{(i)}(w^* \cdot x^{(i)} + b^*) - 1 = 0\)，从而可求得\(b^*\)。其中会利用一个小技巧\(y^{(i)} \cdot y^{(i)} = 1\)，并用
+核函数替换內积最终得到
 
 \begin{align}
 w^* & = \sum_{i=1}^m \alpha_i^* y^{(i)} x^{(i)} \\
@@ -309,7 +313,8 @@ f(x) & = sign \left( \sum_{i=1}^m \alpha_i^* y^{(i)} K(x \cdot x^{(i)}) + b^* \r
 + 若\(\alpha_i^* = C, \quad 0 < \xi_i < 1\)，则分类正确：支撑向量在间隔边界与分离超平面之间
 + 若\(\alpha_i^* = C, \quad \xi_i = 1\)，则支撑向量位于分离超平面上
 + 若\(\alpha_i^* = C, \quad \xi_i > 1\)，则支撑向量位于分离超平面误分的一侧
-note：\(0 < \alpha_i^* < C, \quad 1-\xi_i\)是函数间隔
+note：\(0 \leq \alpha_i^* \leq C, \quad 1-\xi_i\)是函数间隔；只有\(\alpha_i \ne 0\)对应的样本点才是支撑向量？？？可能
+KKT 对偶互补条件中两个变量都为零？？？ TODO
 
 
 ***** sequential minimal optimization
@@ -336,15 +341,72 @@ s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\ldots,m \\
 \(\sum_{i=1}^m \alpha_i y^{(i)} = 0\)的存在，无法只更改一个变量，因为当其他的变量值都不改变时，该变量的值也会由于约束的存在
 而固定无法改变。所以子问题每次都会同时更新两个变量，在满足约束的条件下来求解二次规划问题。
 
-SMO 是启发式算法？？？
+SMO 是启发式算法：好像两个变量的选择方法是启发式搜索算法（不确定）。
 
 整个 SMO 算法包括两个部分：\(\textcircled{1}\)求解两个变量二次规划的解析方法；\(\textcircled{2}\)选择变量的启发式方法。
 
 ****** 两个变量二次规划的求解方法
+每个子问题都可以转换成一个变量的二次函数，很容易求得解析解。
+
 假设利用启发式方法选择出两个变量\(\alpha_1,\alpha_2\)，其他变量\(\alpha_3,\alpha_4,\ldots,\alpha_m\)固定不变，由约束可知
-\(\alpha_1
+\( \alpha_1 y^{(1)} + \alpha_2 y^{(2)} = -\sum_{i=3}^{m} \alpha_i y^{(i)} \)由于公式右侧是固定的，使用一个常量符号
+\(\zeta\)替代
 
+\begin{equation}
+\alpha_1 y^{(1)} + \alpha_2 y^{(2)} = \zeta
+\end{equation}
 
+虽然要同时更新两个变量，但其实只有一个自由变量。此处使用\(\alpha_2\)表示\(\alpha_1\)，利用\({(y^{(1)})}^2 = 1\)
+
+\begin{equation}
+\alpha_1 = ( \zeta - \alpha_2 y^{(2)} ) y^{(1)}
+\end{equation}
+
+因此目标函数可以写成
+
+\begin{equation}
+W(\alpha_1,\alpha_2,\ldots,\alpha_m) = W((\zeta - \alpha_2 y^{(2)})y^{(1)},\alpha_2,\alpha_3,\ldots,\alpha_m)
+\end{equation}
+
+由于将\(\alpha_3,\alpha_4,\ldots,\alpha_m\)视为固定值，目标函数可以看做关于\(alpha_2\)的二次函数，可以写成
+\(a\alpha_2^2 + b\alpha_2 + c\)的形式，在没有约束的情况下，可以很容易的通过求导并令导数为零得到极值。
+
+同时每个变量都必须满足约束\(0 < \alpha_i < C\)，具体到一个子问题上，对于变量\(\alpha_1,\alpha_2\)，两个变量都必须约束在
+\([0,C] \times [0, C]\)的方框中，再加上上面的线性约束，\(\alpha_1,\alpha_2\)必须约束在被方框截断的直线上。从而\(L \leq
+\alpha_2^{new} \leq H\)，其中L与H是\(\alpha_2^{new}\)所在的对角线段端点的界。另外线性约束中的常量\(\zeta\)可以用
+\(\alpha_1 \pm \alpha_2\)表示
+
+\begin{align}
+& if \ y^{(1)} \neq y^{(2)} \notag \\
+& L=max(0, \alpha_2^{old} - \alpha_1^{old}),  H=min(C,C+\alpha_2^{old}-\alpha_1^{old}) \\
+& if \ y^{(1)} = y^{(2)} \notag \\
+& L=max(0,\alpha_2^{old} + \alpha_1^{old}-C), H=min(C,\alpha_2^{old}+\alpha_2{old}) 
+\end{align}
+
+先只要求满足线性约束，求解得到\alpha_2^{new,unclipped} 然后再裁剪来满足 box constraints
+
+\begin{align}
+\alpha_2^{new} = \left\{ \begin{array}{} H & if \alpha_2^{new,unclipped} > H \\
+\alpha_2^{new,unclipped} & if L \leq \alpha_2^{new,unclipped} \leq H \\
+L & if \alpha_2^{new,unclipped} < L \end{array} \right.
+\end{align}
+
+再利用线性约束求得\(\alpha_1^{new}\)
+
+\begin{equation}
+\alpha_1^{new} = \alpha_1^{old} + y^{(1)}y^{(2)} (\alpha_2^{old} - \alpha_2^{new})
+\end{equation}
+
+\(\alpha_2\)的求解：为了叙述方便，记\[g(x)=\sum_{i=1}^m \alpha_i y^{(i)} K(x^{(i)},x) + b\] 令
+\[E_i = g(x^{(i)}) - y^{(i)} = (\sum_{j=1}^m \alpha_j y^{(j)} K(x^{(j)},x^{(i)}) + b) - y^{(i)}, \quad i=1,2 \]
+用于表示g(x)对输入x^{(i)}的预测值与真实值y^{(i)}之差。最终可得
+
+\begin{align}
+\alpha_2^{new,unclipped} = \alpha_2^{old} + \frac{y^{(2)} (E_1 - E_2)}{\eta} \\
+\eta = K_{11} + K_{22} -2K_{12} = ||\phi(x^{(1)}) - \phi(x^{(2)}||^2
+\end{align}
+
+其中\(\phi(x)\)是输入空间到特征空间的映射
 
 ****** 变量选择方法
 SMO 称第一个变量的选择为外层循环，第二个变量的选择为内层循环。外层循环在训练样本中选择违反 KKT 条件最严重的样本点，将其
@@ -360,7 +422,7 @@ KKT 条件 \notag \\
 
 外层循环首先遍历所有满足条件\(0 < \alpha_i < C\)的样本点，即在间隔边界上的支撑向量点，检验他们是否满足 KKT 条件；如果这
 些样本点都满足 KKT 条件，那么遍历整个训练集，检验他们是否满足 KKT 条件。这里的满足 KKT 条件都有一定的误差容忍范围，典型
-值为0.001~0.01。什么叫做违反最严重？实际值与要求值差别比较大？
+值为0.001~0.01。什么叫做违反最严重？实际值与要求值差别比较大？ TODO
 
 内层循环选择\(\alpha_2\)，由于\(\alpha_2^{new}\)依赖于\(|E_1 - E_2|\)，一种简单的做法是通过使\(|E_1 - E_2|\)最大来使得
 \(\alpha_2\)有足够大的变化。由于\(\alpha_1\)已经确定，\(E_1\)也随之确定。如果\(E_1\)是正的，那么选择最小的\(E_i\)作为
@@ -373,7 +435,34 @@ KKT 条件 \notag \\
 适的\(\alpha_2\)，那么遍历训练数据集；若仍找不到合适的\(\alpha_2\)，则放弃之前选择的\(\alpha_1\)，再通过外层循环寻找另外
 的\(\alpha_1\)。注：这里目标函数是上升还是下降要看目标函数具体是在求最大还是最小。
 
-计算阈值\(b\)和差值\(E_i\)：在每次完成两个变量的优化后，都要重新计算阈值\(b\)。当
+计算阈值\(b\)和差值\(E_i\)：在每次完成两个变量的优化后，都要重新计算阈值\(b\)。当\(0 < \alpha_1^{new} < C\)时，由 KKT 条
+件可知\(\sum_{i=1}^m \alpha_i y^{(i)} K_{i1} + b = y^{(1)}\)和\(E_1\)的定义
+
+\(E_1 = \sum_{i=3}^m \alpha_i y^{(i)} K_{i1} + \alpha_1^{old}y^{(1)}K_{11} + \alpha_2^{old}y^{(2)}K_{21} + b^{old} - y^{(1)}\)可知
+
+\begin{align}
+b_1^{new} & = y^{(1)} - \sum_{i=3}^m \alpha_i y^{(i)} K_{i1} - \alpha_1^{new}y^{(1)}K_{11} - \alpha_2^{new}y^{(2)}K_{21}
+\\
+& = -E_1 - y^{(1)}K_{11}(\alpha_1^{new} - \alpha_1^{old}) - y^{(2)}K_{21}(\alpha_2^{new} - \alpha_2^{old}) + b^{old}
+\end{align}
+
+同样，如果\(0 < \alpha_2^{new} < C)，那么
+
+\begin{align}
+b_2^{new} = -E_2 - y^{(1)}K_{12}(\alpha_1^{new} - \alpha_1^{old}) - y^{(2)}K_{22}(\alpha_2^{new} - \alpha_2^{old}) + b^{old}
+\end{align}
+
+如果\(\alpha_1^{new},\alpha_2^{new}\)同时满足\(0 < \alpha_i^{new} < C, i=1,2\)，那么\(b_1^{new}=b_2^{new}\)；如果
+\(\alpha_1^{new},\alpha_2^{new} = 0 \ or \ C\)，那么\(b_1^{new},b_2^{new}\)以及他们之间的数都满足 KKT 条件，这时选择
+\(b_1^{new},b_2^{new}\)的中点作为\(b^{new}\)。
+
+另外再每次更新完两个变量后，还必须更新对应的\(E_i\)值，并将他们保存到列表中。
+
+\begin{align}
+E_i^{new} = \sum_S y^{(j)} \alpha_j K(x^{(i)},x^{(j)}) + b^{new} - y^{(i)}
+\end{align}
+
+其中S是所有支撑向量\(x^{(j)}\)的集合。
 
 ** unsupervised learning
 无监督学习
