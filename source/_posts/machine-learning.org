@@ -1,0 +1,438 @@
+#+TITLE:       machine learning
+#+AUTHOR:      Kyle Three Stones
+#+DATE:        <2018-06-22 Fri 07:19>
+#+EMAIL:       kyleemail@163.com
+#+OPTIONS:     H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t TeX:t
+#+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
+#+TAGS:        机器学习, 
+#+CATEGORIES:  机器学习
+
+* ML
+*机器学习* machine learning: Field of study that gives computers the ability to learn without being explicitly program.
+
+机器学习并不是仅仅是若干算法的堆积，学会“十大算法”，熟练掌握具体算法算法的推导与编程实现，并不能让所有问题迎刃而解，因为
+现实世界的问题千变万化。而应该像张无忌那样，忘记张三丰传授的太极剑法的具体招式，而只记住一些规则和套路，从而根据敌人的招
+式去不断变化自己的招式，达到以不变应万变的效果。或者说用 Andrew Ng 的话，要成为一个 master carpenter （顶级木匠），可以
+灵活使用工具来制造桌椅，只有手艺差的木匠才会抱怨工具不合适。因此必须把握算法背后的思想脉络，针对具体的任务特点，对现有套
+路进行改造融通；要记住算法是 *死* 的，思想才是 *活* 的。
+
+数据库提供数据管理技术，机器学习提供数据分析技术。
+
+** supervised learning
+监督学习
+
+*** support vector machines - SVM
+先写算法的最终求解方法，步骤。认为此时已经知晓所有知识。
+
+支撑向量机，通过核函数将数据映射到高维空间只是增大了数据线性可分的可能性，但无法确保映射后一定线性可分。因此需要使用
+\(\ell 1\)正则化来修正模型；同时也使得分割线对 outliers 不那么敏感。
+
+**** 算法步骤
+1. 构造含约束的最优化问题
+2. 求得相应的对偶问题
+3. 利用 SMO 算法高效求解对偶问题
+
+\begin{align}
+max_{w, b} \quad & \gamma \\
+s.t. \quad & y^{(i)} \left( \frac{w}{||w||} \cdot x^{(i)} + \frac{b}{||w||} \right) 
+\geq \gamma, \quad i=1,2,\ldots,m
+\end{align}
+
+\begin{align}
+max_{w, b} \quad & \frac{\hat{\gamma}}{||w||} \\
+s.t. \quad & y^{(i)} \left( w \cdot x^{(i)} + b \right) \geq \hat{\gamma}, \quad i=1,2,\ldots,m
+\end{align}
+
+\begin{align}
+min_{w, b} \quad & \frac{1}{2}||w||^2 \\
+s.t. \quad & y^{(i)} \left( w \cdot x^{(i)} + b \right) \geq 1, \quad i=1,2,\ldots,m
+\end{align}
+
+\begin{align}
+min_{w, b, \color{red}{\xi_i}} \quad & \frac{1}{2}||w||^2 + C\sum_{i=1}^m \xi_i \\
+s.t. \quad & y^{(i)} \left( w \cdot x^{(i)} + b \right) \geq 1 - \xi_i, \quad i=1,2,\ldots,m \\
+& \xi_i \geq 0, \quad i=1,2,\ldots,m
+\end{align}
+
+\begin{align}
+max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
+\frac{1}{2} \sum_{i,j=1}^m y^{(i)}y^{(j)} \alpha_i\alpha_j \left \langle x^{(i)},x^{(j)} \right \rangle \\
+s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\ldots,m \\
+& \sum_{i=1}^m \alpha_i y^{(i)} = 0
+\end{align}
+
+\begin{align}
+max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
+\frac{1}{2} \sum_{i,j=1}^m y^{(i)}y^{(j)} \alpha_i\alpha_j K( x^{(i)},x^{(j)} ) \\
+s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\ldots,m \\
+& \sum_{i=1}^m \alpha_i y^{(i)} = 0
+\end{align}
+
+\begin{align}
+w^* & = \sum_{i=1}^m \alpha_i^* y^{(i)} x^{(i)} \\
+b^* & = y^{(i)} - \sum_{i=1}^m \alpha_i^* y^{(i)} K(x^{(i)}, x^{(j)}) \\
+f(x) & = sign \left( \sum_{i=1}^m \alpha_i^* y^{(i)} K(x \cdot x^{(i)}) + b^* \right)
+\end{align}
+
+
+再写一些术语的解释
+*SVM 的基本思想就是求解能够正确划分训练数据集并且几何间隔最大的分离超平面。* 
+
+**** 算法演进过程：
+1. 因为 SVM 学习算法的目标是最大化几何间隔\(\gamma\)，所以构建相应的模型，其目标函数表示为最大化几何间隔，同时约束每个训
+   练样本距离分离超平面的距离大于该几何间隔。
+2. 由于最终需要求解的是分离超平面的权重，所以需要利用几何间隔与函数间隔的关系，让目标函数中显示出现分离超平面的权重；即
+   将目标函数和约束中的几何间隔统一改为函数间隔 \(\hat{\gamma}\)。
+3. 函数间隔的取值并不影响上述最优化问题的解（当分离超平面的权重成比例变化时，函数间隔也呈现相应比例的变化），即函数间隔
+   成比例变化时对不等式约束没有影响（相当于不等式的两边同时乘以该变化系数），对目标函数的优化也没有影响（目标函数的分子
+   和分母同时乘以该变化系数）。为了简化模型表达式，取函数间隔为 *1* 。
+4. 此时目标函数的分子为 1 ，分母为分离超平面的权重，且为求最大值。由于权重处于分母时，不利于求解，此时只需要最小化目标函
+   数的分母即可。同时将权重转化为二次。此时的约束最优化问题与原问题是等价的，这是一个凸二次规划问题（convex quadratic
+   programming）。Andrew Ng 讲解上述的变化都是在将非凸优化问题转化成凸优化问题。
+5. 由于存在线性不可分以及 outliers 让分离超平面变差的可能。使函数间隔不再始终大于1，将函数间隔减去一个松弛变量，即函数间
+   隔大于\(1-\xi_i\)。由于不再要求函数间隔始终大于1，所以可以找打一个分离超平面来分割不同的类别。但同时也不希望松弛变量
+   太大，所以在目标函数中增加相应的正则化项（这里使用的是\(\ell_1\) regularization）。同时使用C来调节权重与松弛变量在目
+   标含住中的比例关系。
+6. 由于该凸二次规划问题求解时间复杂度较高，所以转而去求解相应的对偶问题。使用对偶问题可以高效求解，同时可以使用核函数。
+7. 如果可以将特征都转换成內积的表示形式，就可以使用核函数。转换成內积形式以后，将表达式中的\(x\)转换成\(\phi(x)\) 就表示
+   使用了核函数。而且并不需要知道\(\phi(x)\)的具体表达式，只需要代入\(\phi(x)^T \phi(z)\)乘积的结果，即选取的核函数的表
+   达式\(K(\phi(x),\phi(z))\)就可以，这样将大大简化计算。
+8. 另外转换成对偶问题后，可以使用 SMO（sequential minimal optimization）算法来高效求解。
+
+**** 术语解释
+***** 原问题 - 对偶问题
+虽然有很多的最优化算法可以求解该凸二次规划问题，但是当训练样本容量很大时，这些算法往往变得非常低效。而当参数满足
+Karush-Kuhn-Tucker (KKT) 条件时，原问题和对偶问题的解相同；并且将原问题转换成对偶问题后，可以使用 SMO 算法高效求解，所以
+才提出了原问题(primal program)及对偶问题(dual problem)。事实上这里使用的是拉格朗日对偶性(Lagrange duality)，原问题和对偶
+问题的函数表达式都是拉格朗日函数(Lagrange function)。我们需要解决的问题一般都是含约束的最优化问题，而求解含约束的最优化
+问题，一种有效的方法就是使用拉格朗日乘数法。使用拉格朗日乘数法首先构造拉格朗日函数，然后对拉格朗日函数参数的不同求解顺序
+构成了原问题及对偶问题。
+
+\begin{align}
+min_{w} \quad & f(w) \\
+s.t. \quad & g_i (w) \leq 0, \quad i=1,2,\ldots,k \\
+& h_i (w) = 0, \quad i=1,2,\ldots,l
+\end{align}
+
+\begin{equation}
+\mathcal{L}(w,\alpha,\beta) = f(w)+ \sum_{i=1}^k \alpha_i g_i(w) + \sum_{i=1}^l \beta_i h_i(w)
+\end{equation}
+
+\begin{align}
+\theta_p(w) & = max_{\alpha,\beta:\alpha_i \geq 0} \ \mathcal{L}(w, \alpha, \beta) \\
+min_w \theta_p(w) & = min_w max_{\alpha,\beta:\alpha_i \geq 0} \ L(w, \alpha, \beta) \\
+p^* & = min_w \ \theta_p(w) 
+\end{align}
+
+\begin{align}
+\theta_D(\alpha, \beta) & = min_w \ \mathcal{L}(w, \alpha, \beta) \\
+
+max_{\alpha,\beta:\alpha_i \geq 0} \ \theta_D(\alpha, \beta) & = max_{\alpha,\beta:\alpha_i \geq 0}\ 
+min_w \ \mathcal{L}(w, \alpha, \beta) \\
+
+d^* & = max_{\alpha,\beta:\alpha_i \geq 0} \ \theta_D(\alpha, \beta)
+\end{align}
+
+\begin{equation}
+d^* = max_{\alpha,\beta:\alpha_i \geq 0}\ min_w \ \mathcal{L}(w, \alpha, \beta) \leq
+min_w max_{\alpha,\beta:\alpha_i \geq 0} \ \mathcal{L}(w, \alpha, \beta) = p^*
+\end{equation}
+
+将原始的问题转换成拉格朗日函数，其中\(\alpha_i\) 和 \(\beta_i\)都是拉格朗日乘子，而且不等式约束\(g_i(w)\leq0\)，要求其拉
+格朗日乘子\(\alpha_i\geq0\)。此时只要不满足等式或者不等式约束，也就是存在一个或者多个\(i\)使得\(g_i(w) \ge 0\)或者
+\(h_i(w)\neq0\)，那么求解\(\theta_p(w)\)的结果必然是无穷大；而当所有的\(i\)都满足约束时，\(\theta_p(w)=f(w)\)，此时两者
+等价，再对\(\theta_p(w)\)参数\(w\)求最小，即为原始问题。也就是说，两者是等价的，相当于同一个问题。
+
+\begin{align}
+\theta_p(w) = \left\{ \begin{array} f(w) & 如果w满足原约束 \\
+\infty & 否则 \end{array} \right.
+\end{align}
+
+而对偶问题就是调节一下求解的参数的顺序。原问题中先对参数\(\alpha,\beta\)求最大，然后对\(w\)求最小；对偶问题中先对参数
+\(w\)求最小，然后再对参数\(\alpha,\beta\)求最大，也就是对调了 max 和 min 的求解顺序，仅此而已。
+
+由于\(max min(\cdots) \leq min max(\cdots)\)，所以\(d^* \leq p^*\)。并且当\(w,\alpha,\beta\)满足 KKT 条件时，原问题的解和
+对偶问题的解相同即\(p^*=d^*\)。反之也成立，即如果原问题和对偶问题的解相同，那么\(w,\alpha,\beta\)满足 KKT 条件。
+
+\begin{align}
+\frac{\partial}{\partial w_i} \mathcal{L}(w^*,\alpha^*,\beta^*) & = 0, \quad i=1,2,\ldots,n \\
+\alpha_i^*g_i(w^*) & = 0, \quad i=1,2,\ldots,k \label{kkt:ducom} \\
+g_i(w^*) & \leq 0, \quad i=1,2,\ldots,k \\
+\alpha^* & \geq 0, \quad i=1,2,\ldots,k \\
+h_i(w) & = 0, \quad i=1,2,\ldots,l \\
+\end{align}
+
+公式\(\eqref{kkt:ducom}\)称为 KKT 对偶互补条件（KKT dual complementary condition）；由此条件可知，若\(\alpha_i^* > 0\)，
+则\(g_i(w^*) = 0\)。这个条件是说明 SVM 只有少数支撑向量的关键，同时也用于证明 SMO 算法收敛性。
+
+具体到 SVM 算法，原问题的拉格朗日函数是
+
+\begin{align}
+\mathcal{L}(w,b,\xi,\alpha,\mu) = & \frac{1}{2}||w||^2 + C\sum_{i=1}^m\xi_i \notag \\
+& - \sum_{i=1}^m\alpha_i[y^{(i)}(w \cdot x^{(i)} + b)-1 + \xi_i] - \sum_{i=1}^m\mu_i\xi_i \\
+其中 & \alpha_i \geq 0; \mu_i \geq 0 \quad 两者都是拉格朗日乘子 \notag
+\end{align}
+
+对偶问题是拉格朗日函数的极大极小问题。首先求\(\mathcal{L}(w,b,\xi,\alpha,\mu)\)对\(w,b,\xi\)求极小，分别求导并令导数为0
+
+\begin{align}
+\nabla_w \mathcal{L}(w,b,\xi,\alpha,\mu) = w - \sum_{i=1}^m \alpha_i y^{(i)} x^{(i)} = 0 \\
+\nabla_b \mathcal{L}(w,b,\xi,\alpha,\mu) = -\sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
+\nabla_{\xi_i} \mathcal{L}(w,b,\xi,\alpha,\mu) = C - \alpha_i -\mu_i = 0
+\end{align}
+
+得到
+
+\begin{align}
+w=\sum_{i=1}^m \alpha_i y^{(i)} x^{(i)} \\
+\sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
+C- \alpha_i -\mu_i = 0
+\end{align}
+
+将结果带入原问题的拉格朗日函数，
+
+\begin{align}
+min_{w,b,\xi} \mathcal{L}(w,b,\xi,\alpha,\mu) = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j y^{(i)}y^{(j)}(x^{(i)}x^{(j)}) +
+\sum_{i=1}^m\alpha_i
+\end{align}
+
+再对\(min_{w,b,\xi}\mathcal{L}(w,b,\xi,\alpha,\mu)\)求参数\(\alpha\)的极大，就得到了对偶问题目标函数的表达式，连同上面得
+到的约束，共同构成对偶问题：
+
+\begin{align}
+max_\alpha \quad & = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j y^{(i)}y^{(j)}(x^{(i)}x^{(j)}) + \sum_{i=1}^m\alpha_i \\
+s.t. \quad & = \sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
+& C - \alpha_i - \mu_i = 0, \quad i=1,2,\ldots,m \\
+& \alpha_i = 0, \quad i=1,2,\ldots,m \\
+& \mu_i \geq = 0, \quad i=1,2,\ldots,m
+\end{align}
+
+最后利用倒数第三个等式约束消去变量\(\mu_i\)，只留下变量\(\alpha_i\)，得到\(0 \leq \alpha_i \leq C\)，同时将目标函数中的
+输入属性的內积\(x^{(i)},x^{(j)}\)替换成核函数\(\phi(x^{(i)}),\phi(x^{(j)})\)，并且直接使用核函数的最终形式\(K(x^{(i)},x^{(j)})\)得到对偶问题的最
+终形式
+
+\begin{align}
+max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
+\frac{1}{2} \sum_{i,j=1}^m y^{(i)}y^{(j)} \alpha_i\alpha_j K( x^{(i)},x^{(j)} ) \\
+s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\ldots,m \\
+& \sum_{i=1}^m \alpha_i y^{(i)} = 0
+\end{align}
+
+***** kernel
+使用核函数的方法：将原始输入的属性值\(x\)变换成\(\phi(x)\)特征作为算法的输入（仅此而已，不知道为什么原来就一直没有看懂）。
+只是在具体运用时利用了一点小技巧，并不是直接去计算映射后的值然后再去计算，而是先将原始输入属性值表示称內积的形式，然后巧
+妙的用核函数来代替內积。这样做的优势：将核函数代替內积可以高效计算；同时可以将特征映射到高维空间，从而将原来线性不可分的
+问题转换成线性可分。
+
+一般来说，如果输入空间\(x^{(i)} \in \mathbb{R}^n\)，对应的标记有两类\(y^{(i)} \in \{-1,1\}\)，如果能用\(\mathbb{R}^n\)中
+的一个超曲面将正负实例正确分开，则称这个问题为非线性可分问题。而非线性问题往往不好求解，一般采取非线性变换， *将非线性问
+题转换成线性问题* ，通过求解变换后的线性问题来得到原来的非线性问题的解。
+
+用线性分类方法求解非线性问题分为两步：首先使用一个变换将原空间的数据映射到新空间；然后在新空间里用线性分类学习方法从训练
+数据中学习分类模型。核技巧就是这样的方法。支撑向量机使用核技巧的基本想法就是通过一个非线性变换将输入空间对应到一个特征空
+间，使得在输入空间\(\mathbb{R}^n\)中的超曲面对应于特征空间\(\mathcal{H}\)中的超平面，这样学习任务通过在特征空间中求解线
+性支持向量机就可以完成。其中输入空间为欧式空间\(\mathbb{R}^n\)或离散空间，特征空间为希尔伯特空间\(\mathcal{H}\)（no see）。
+
+设\(\mathcal{X}\)是输入空间，\(\mathcal{H}\)为特征空间，如果存在一个从\(\mathcal{X}\)到\(\mathcal{H}\)的映射，
+\[\phi(x):\mathcal{X} \to \mathcal{H} \]使得对所有的\(x,z \in \mathcal{X}\)，函数\(K(x,z)\)满足\[K(x,z)=\phi(x) \cdot
+\phi(z)\]则称\(K(x,z)\)为核函数。
+
+核函数的想法是，在学习和预测时，只使用核函数\(K(x,z)\)，而不显示的定义映射函数\(\phi\)，这将比直接计算\(\phi(x) \cdot
+\phi(z)\)容易的多。由于算法中所有的属性值（例如目标函数和决策函数）都可以表示成內积的形式\(\langle x,z \rangle\)，因为需
+要将所有的\(x\)都替换成\(\phi(x)\)，那么直接将內积替换成\(\langle\phi(x),\phi(z)\rangle\)的形式，而
+\(\langle\phi(x),\phi(z)\rangle\)就是一个核函数，直接带入\(K(x,z)\)的表达式就可以。最终结果就是将算法中所有的內积都直接
+替换成核函数即可；根本无需计算映射，也根本无需知道映射函数的表达式，只需要使用核函数的最终表达式。而且核函数并不单单可以
+应用在支撑向量机上，所有可以将输入属性表示成內积的形式的算法都可以使用。
+
+对于给定的核\(K(x,z)\)，特征空间\(\mathcal{H}\)和映射函数\(\phi\)的取法并不唯一。特征空间可以不同，即便在同一个特征空间
+也可以取不同的映射。
+
+TODO 举一个核函数和映射函数表达式的例子
+
+*核函数的选取：* 有时可以选择标准的核函数，有时需要自己根据问题构造核函数（需要阅读相应的论文来了解怎样为一个新问题发明
+一个新的核函数）。
+
+通常所说的核函数就是正定核函数（positive definite kernel function）。根据 Mercer 定理，正定核函数的 *充要条件* ：设已知
+\(K:\mathbb{R}^n \times \mathbb{R}^n \to \mathbb{R} \)，则\(K(x,z)\)是正定核函数的充要条件是对任意
+\(\{x^{(1)},x^{(2)},\ldots,x^{(m)}\},\ (m < \infty) \)，相应的核矩阵 Gram 矩阵\(K=[ K(x^{(i)},x^{(j)}) ]_{m \times m} \)
+是对称半正定的。
+
+*常用核函数:* 高斯核函数（Gaussian kernel function）\[ K(x,z) = exp \left( -\frac{||x-z||^2}{2\sigma^2} \right) \] 多项
+式核函数（polynomial kernel function）\[ K(x,z) = (x^T z +c)^d \] 字符串核函数（string kernel function）
+
+***** 决策函数
+决策函数即算法最终得到的分离超平面的表达式。分离超平面\(w^*,b^*\)的表达式由原问题通过满足 KKT 条件求解得到，而表达式中参
+数具体的值由对偶问题通过 SMO 算法求得。原问题可以表示为
+
+\begin{align}
+min_{w, b,\xi_i} \quad & \frac{1}{2}||w||^2 + C\sum_{i=1}^m \xi_i \\
+s.t. \quad & -[y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] \leq 0, \quad i=1,2,\ldots,m \\
+& -\xi_i \leq 0, \quad i=1,2,\ldots,m
+\end{align}
+
+拉格朗日函数
+
+\begin{align}
+\mathcal{L}(w,b,\xi,\alpha,\mu) = & \frac{1}{2}||w||^2 + C\sum_{i=1}^m\xi_i \notag \\
+& - \sum_{i=1}^m\alpha_i[y^{(i)}(w \cdot x^{(i)} + b)-1 + \xi_i] - \sum_{i=1}^m\mu_i\xi_i 
+\end{align}
+
+解满足 KKT 条件
+
+\begin{align}
+\partial_w\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = w^* - \sum_{i=1}^m \alpha_i^* y^{(i)} x^{(i)} = 0 \\
+\partial_b\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = -\sum_{i=1}{m} \alpha_i^* y^{(i)} = 0 \\
+\partial_{\xi}\mathcal{L}(w^*,b^*,\xi^*,\alpha^*,\mu^*) = C - \alpha^* - \mu^* = 0 \\
+\alpha_i^* [y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] = 0 \\
+\mu_i^* \xi_i^* = 0 \\
+-[y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] \leq 0 \\
+-\xi_i^* \leq 0 \\
+\alpha_i^* \geq 0 \\
+\mu_i^* \geq 0
+\end{align}
+
+求解上面的方程，\(w^*\)较易求解。再由 KKT 对偶互补条件可知，当存在\(\alpha_i^*\)满足\(0 < \alpha_i^* < C\)时，
+\(y^{(i)}(w^* \cdot x^{(i)} + b^)* - 1 = 0\)，从而可求得\(b^*\)。其中会利用一个小技巧\(y^{(i)} \cdot y^{(i)} = 1\)最终得
+到
+
+\begin{align}
+w^* & = \sum_{i=1}^m \alpha_i^* y^{(i)} x^{(i)} \\
+b^* & = y^{(i)} - \sum_{i=1}^m \alpha_i^* y^{(i)} K(x^{(i)}, x^{(j)}) \\
+& \sum_{i=1}^m \alpha_i^* y^{(i)} K(x \cdot x^{(i)} ) + b^* = 0 \\
+f(x) & = sign \left( \sum_{i=1}^m \alpha_i^* y^{(i)} K(x \cdot x^{(i)}) + b^* \right)
+\end{align}
+
+***** 支撑向量
+在线性不可分的情况下，将对偶问题的解中对应\(\alpha_i^* > 0\)的样本点\((x^{(i)},y^{(i)})\)称为支撑向量。软间隔的支撑向量
+可能在任何地方：可以在间隔边界上；可以在间隔边界与分离超平面之间；也可以在分离超平面误分的一侧。
++ 若\(\alpha_i^* < C\)，则\(\xi_i=0\)：支撑向量落在边界线上
++ 若\(\alpha_i^* = C, \quad 0 < \xi_i < 1\)，则分类正确：支撑向量在间隔边界与分离超平面之间
++ 若\(\alpha_i^* = C, \quad \xi_i = 1\)，则支撑向量位于分离超平面上
++ 若\(\alpha_i^* = C, \quad \xi_i > 1\)，则支撑向量位于分离超平面误分的一侧
+note：\(0 < \alpha_i^* < C, \quad 1-\xi_i\)是函数间隔
+
+
+***** sequential minimal optimization
+*坐标上升法：* 当求解多变量最优化问题且不存在约束的时候，可以使用坐标上升法（和梯度下降法以及牛顿法都是最优化方法）来求
+解。利用两层循环来实现，外层循环便利所有样本，内层循环便利所有变量。在内层循环中每次仅优化一个变量，同时固定其他的变量不
+变，针对该变量来优化目标函数。这样总是沿着和坐标轴平行的方向取得最大值，而且选取往最优解移动的速度最快的变量来求解。
+
+序列最小最优化算法求解的对象是凸二次规划的对偶问题：
+
+\begin{align}
+max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
+\frac{1}{2} \sum_{i,j=1}^m y^{(i)}y^{(j)} \alpha_i\alpha_j K(x^{(i)},x^{(j)}) \\
+s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\ldots,m \\
+& \sum_{i=1}^m \alpha_i y^{(i)} = 0
+\end{align}
+
+在该问题中变量是拉格朗日乘子\(\alpha_i\)，每个样本都有一个拉格朗日乘子，变量的总数等于训练样本的个数\(m\)
+
+算法基本思路：因为 KKT 条件是该最优化问题的充分必要条件，当所有变量都满足该最优化问题的 KKT 条件，那么这个最优化问题的解
+就得到了。否则，选择两个变量，固定其他变量，针对这两个变量构建二次规划问题，而求解该二次规划子问题将使得目标函数值变大。
+这样将问题不断分解为子问题，并对子问题求解，直到所有的变量都满足 KKT 条件。
+
+由于构建的二次规划子问题可以通过解析的方法求解，这样就大大提高了整个算法的计算速度（迭代会很耗时的）。另外由于约束
+\(\sum_{i=1}^m \alpha_i y^{(i)} = 0\)的存在，无法只更改一个变量，因为当其他的变量值都不改变时，该变量的值也会由于约束的存在
+而固定无法改变。所以子问题每次都会同时更新两个变量，在满足约束的条件下来求解二次规划问题。
+
+SMO 是启发式算法？？？
+
+整个 SMO 算法包括两个部分：\(\textcircled{1}\)求解两个变量二次规划的解析方法；\(\textcircled{2}\)选择变量的启发式方法。
+
+****** 两个变量二次规划的求解方法
+假设利用启发式方法选择出两个变量\(\alpha_1,\alpha_2\)，其他变量\(\alpha_3,\alpha_4,\ldots,\alpha_m\)固定不变，由约束可知
+\(\alpha_1
+
+
+
+****** 变量选择方法
+SMO 称第一个变量的选择为外层循环，第二个变量的选择为内层循环。外层循环在训练样本中选择违反 KKT 条件最严重的样本点，将其
+对应的变量作为第一个变量。内层循环的标准是希望选择的变量有足够大的变化。
+
+\begin{align}
+KKT 条件 \notag \\
+\alpha_i = 0 \Leftrightarrow y^{(i)}g(x^{(i)}) \geq 1 \\
+0 < \alpha_i < C \Leftrightarrow y^{(i)}g(x^{(i)})=1 \\
+\alpha_i = C \Leftrightarrow y^{(i)}g(x^{(i)}) \leq 1 \\
+其中 g(x^{(i)}) = \sum_{j=1}^m \alpha_j y^{(j)} K(x^{(i)}, x^{(j)}) + b
+\end{align}
+
+外层循环首先遍历所有满足条件\(0 < \alpha_i < C\)的样本点，即在间隔边界上的支撑向量点，检验他们是否满足 KKT 条件；如果这
+些样本点都满足 KKT 条件，那么遍历整个训练集，检验他们是否满足 KKT 条件。这里的满足 KKT 条件都有一定的误差容忍范围，典型
+值为0.001~0.01。什么叫做违反最严重？实际值与要求值差别比较大？
+
+内层循环选择\(\alpha_2\)，由于\(\alpha_2^{new}\)依赖于\(|E_1 - E_2|\)，一种简单的做法是通过使\(|E_1 - E_2|\)最大来使得
+\(\alpha_2\)有足够大的变化。由于\(\alpha_1\)已经确定，\(E_1\)也随之确定。如果\(E_1\)是正的，那么选择最小的\(E_i\)作为
+\(E_2\)；如果\(E_1\)是负的，那么选择最大的\(E_i\)作为\(E_2\)。
+
+为了节省计算时间，将所有的\(E_i\)值保存在一个列表中。
+
+在特殊情况下，如果内层循环通过以上方法选择的\(\alpha_2\)不能使目标函数有足够的上升，那么采用以下启发式规则继续选择
+\(\alpha_2\)。遍历在间隔边界上的支撑向量点，依次将其对应的变量作为\(\alpha_2\)试用，直到目标函数有足够的上升。若找不到合
+适的\(\alpha_2\)，那么遍历训练数据集；若仍找不到合适的\(\alpha_2\)，则放弃之前选择的\(\alpha_1\)，再通过外层循环寻找另外
+的\(\alpha_1\)。注：这里目标函数是上升还是下降要看目标函数具体是在求最大还是最小。
+
+计算阈值\(b\)和差值\(E_i\)：在每次完成两个变量的优化后，都要重新计算阈值\(b\)。当
+
+** unsupervised learning
+无监督学习
+
+** semi-supervised learning
+半监督学习
+
+** reinforcement learning
+强化学习
+
+** learning theory
+学习理论
+
+* 附
+
+** AI-ML-DL
+人工智能就是想让计算机拥有自行处理高级任务的能力；机器学习是实现人工智能的一种方法；深度学习是一类具体的机器学习方法。
+*** artificial intelligence
+人工智能发展：
++ 推理期 -- 赋予机器逻辑推理能力，但没有知识
++ 知识期 -- 让机器拥有知识（专家系统）；由人来把知识总结出来再教给计算机
++ 机器学习 -- 让机器自己能够学习知识
+
+*** machine learning
+机器学习研究方法：
++ 连接主义（connectionism）学习 -- 代表：感知机、神经网络、深度学习
++ 符号主义（symbolism）学习 -- 代表：决策树
++ 统计学习 -- 代表：SVM、核方法；（跟上述两种方法并不是完全并列）
+
+*** deep learning
+深度学习
+**** 现在火热的原因
++ 数据量大了
++ 计算能力强了
+
+**** 降低门槛
+以往机器学习技术在应用中要取得良好的性能，对使用者的要求较高；而深度学习只要超参调节的好，性能往往就很好，显著降低了机器
+学习应用者的门槛。
+
+手工调参：参数的设置缺乏理论指导，参数调节上失之毫厘，学习结果谬以千里；使用需要大量的 track （窍门）
+
+**** 理论基础
+深度学习缺乏严格的理论基础
+
+** 归纳偏好
+*** No Free Lunch Theorem -- NFL
+没有免费的午餐定理：所有问题出现的机会相同，或所有问题同等重要的前提下，无论算法 A 看似多精妙，算法 B 多笨拙，他们的期望
+性能是相同的。即：若考虑所有潜在的问题，则所有学习算法都一样好。学习算法自身的归纳偏好与问题是否匹配，往往起到决定行的作
+用。
+
+脱离具体问题，空泛的谈什么学习算法更好毫无意义。
+
+*** Occam's razor
+奥卡姆剃刀原理：在所有可能选择的模型中，能够很好的解释已知数据并且十分简单才是最好的模型。
+
+* 心得
+
+
+
+
+
+

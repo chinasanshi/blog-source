@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+db.json
+*.log
+*.swp
+node_modules/
+public/
+.deploy*/
+hexo-org-cache/
+themes/

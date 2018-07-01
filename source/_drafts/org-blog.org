@@ -1,0 +1,14 @@
+
+#+TITLE: My First Blog Post
+#+TAGS: org-mode, hexo
+
+This is some content.
+
+* Hello there
+
+  This is other content.
+
+  #+BEGIN_SRC sh
+    # Test emacs's syntax highlight
+    echo "Hello hexo-renderer-org"
+  #+END_SRC
