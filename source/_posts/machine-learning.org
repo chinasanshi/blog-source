@@ -19,10 +19,10 @@
 
 数据库提供数据管理技术，机器学习提供数据分析技术。
 
-** supervised learning
+** Supervised Learning
 监督学习
 
-*** support vector machines - SVM
+*** Support Vector Machines - SVM
 *SVM 的基本思想就是求解能够正确划分训练数据集并且几何间隔最大的分离超平面。* 
 
 先写算法的最终求解方法，步骤。认为此时已经知晓所有知识。
@@ -219,7 +219,7 @@ s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\ldots,m \\
 & \sum_{i=1}^m \alpha_i y^{(i)} = 0
 \end{align}
 
-***** kernel
+***** Kernel
 使用核函数的方法：将原始输入的属性值\(x\)变换成\(\phi(x)\)特征作为算法的输入（仅此而已，不知道为什么原来就一直没有看懂）。
 只是在具体运用时利用了一点小技巧，并不是直接去计算映射后的值然后再去计算，而是先将原始输入属性值表示称內积的形式，然后巧
 妙的用核函数来代替內积。这样做的优势：将核函数代替內积可以高效计算；同时可以将特征映射到高维空间，从而将原来线性不可分的
@@ -317,7 +317,7 @@ note：\(0 \leq \alpha_i^* \leq C, \quad 1-\xi_i\)是函数间隔；只有\(\alp
 KKT 对偶互补条件中两个变量都为零？？？ TODO
 
 
-***** sequential minimal optimization
+***** Sequential Minimal Optimization
 *坐标上升法：* 当求解多变量最优化问题且不存在约束的时候，可以使用坐标上升法（和梯度下降法以及牛顿法都是最优化方法）来求
 解。利用两层循环来实现，外层循环便利所有样本，内层循环便利所有变量。在内层循环中每次仅优化一个变量，同时固定其他的变量不
 变，针对该变量来优化目标函数。这样总是沿着和坐标轴平行的方向取得最大值，而且选取往最优解移动的速度最快的变量来求解。
@@ -464,35 +464,82 @@ E_i^{new} = \sum_S y^{(j)} \alpha_j K(x^{(i)},x^{(j)}) + b^{new} - y^{(i)}
 
 其中S是所有支撑向量\(x^{(j)}\)的集合。
 
-** unsupervised learning
+** Unsupervised Learning
 无监督学习
 
-** semi-supervised learning
+** Semi-supervised Learning
 半监督学习
 
-** reinforcement learning
+** Reinforcement Learning
 强化学习
 
-** learning theory
-学习理论
+** Learning Theory
+学习理论用于真正理解机器学习算法，了解怎样修改算法；区分开真正了解算法与只看了书和公式的人，真正成为一个好的木匠。
+
+learning theory split to two central questions:
+1. can we make sure that Eout(g) is close enough to Ein(g) ?
+2. can we make Ein(g) small enough ?
+
+*** Probably Approximately Correct
+概率近似正确，简称 PAC：通常我们无法精确的学到目标概念（concept）。原因如下：
++ 由于训练集 D 往往只包含有限数量的样本，因此，通常会存在一些在 D 上的“等效”的假设，学习算法无法区分。即存在多个假设都满
+  足样本空间到标记空间的映射
++ 从分布\(\mathcal{D}\)上采样得到 D 的过程有一定的偶然性。存在一定的概率使得样本都有某种特性，但该特性在总体中不存在；从
+  而对同样大小的不同训练集，学的的结果也可能有所不同
+因此我们希望以比较大的把握学的比较好的模型；即以 *较大的概率* 学的 *误差满足预设上限* 的模型。也就成为了“概率”“近似正确”
+框架。
+
+通常假设训练集和测试集服从相同的分布；训练集的样本独立同分布。
+
+PAC 可学习：只要从分布\(\mathcal{D}\)中独立同分布采样得到的样例数目 m ，满足
+\(m \geq poly(\frac{1}{\varepsilon},\frac{1}{\delta},size(x),size(c))\)，学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识
+概念类\(\mathcal{C}\)，则称概念类\(\mathcal{C}\)对假设空间\(\mathcal{H}\)而言是 PAC 可学习的，有时也简称概念类
+\(\mathcal{C}\)是 PAC 可学习的。
+
+
+
+
+*** 术语
+*concept* 概念：表示从样本空间\(\mathcal{X}\)到标记空间\(\mathcal{Y}\)的映射，用符号 c 表示。不要疑惑为什么叫做概念，在机
+器学习中，这个映射就被称为概念。
+
+*目标概念* ：若对任何样例\((x,y)\)都有\(c(x)=y\)成立，则称 c 为目标概念。
+
+*concept class* 概念类：我们希望学的的目标概念构成的集合称为概念类，用符号\(\mathcal{C}\)表示。no see 概念类到底是个什么
+东西？？？？
+
+*hypothesis space* 假设空间：对给定的学习算法\(\mathscr{L}\)，她所考虑的所有可能概念的集合称为假设空间，用符号
+\(\mathcal{H}\)表示。学习算法吧自认为可能的目标概念一起构成\(\mathcal{H}\)，学习算法并不可能知道概念类的真实值，因此
+\(mathcal{C}\)和\(\mathcal{H}\)通常是不同的。假设空间中任何一个假设\(h \in \mathcal{H}\)也都是从样本空间\(\mathcal{X}\)
+到标记空间\(\mathcal{Y}\)的映射。
+
+*consistent* 一致的：若目标概念 \(c \in \mathcal{H}\) ，则表示\(\mathcal{H}\)中存在假设能将所有示例按照与真实标记一致的
+方式分开，则称该问题对学习算法\(\mathscr{L}\)是 /可分的/ (separable)，也成为一致的；若 \(c \not \in \mathcal{H}\)，则称
+为不可分(non-separable)或者不一致(non-consistent)
+
+*PAC Identity* PAC 辨识：对\(0 < \varepsilon, \delta < 1\)，所有\(c \in \mathcal{C}\)和所有的分布\(\mathcal{D}\)，若存在
+学习算法\(mathscr{L}\)，其输出假设\(h \in \mathcal{H}\)满足
+\[ P(E(h) \leq \varespsilon ) \geq 1 - \delta \]
+则称学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识概念类\(\mathcal{C}\)
+
 
 * 附
 
 ** AI-ML-DL
 人工智能就是想让计算机拥有自行处理高级任务的能力；机器学习是实现人工智能的一种方法；深度学习是一类具体的机器学习方法。
-*** artificial intelligence
+*** Artificial Intelligence
 人工智能发展：
 + 推理期 -- 赋予机器逻辑推理能力，但没有知识
 + 知识期 -- 让机器拥有知识（专家系统）；由人来把知识总结出来再教给计算机
 + 机器学习 -- 让机器自己能够学习知识
 
-*** machine learning
+*** Machine Learning
 机器学习研究方法：
 + 连接主义（connectionism）学习 -- 代表：感知机、神经网络、深度学习
 + 符号主义（symbolism）学习 -- 代表：决策树
 + 统计学习 -- 代表：SVM、核方法；（跟上述两种方法并不是完全并列）
 
-*** deep learning
+*** Deep Learning
 深度学习
 **** 现在火热的原因
 + 数据量大了
@@ -515,7 +562,7 @@ E_i^{new} = \sum_S y^{(j)} \alpha_j K(x^{(i)},x^{(j)}) + b^{new} - y^{(i)}
 
 脱离具体问题，空泛的谈什么学习算法更好毫无意义。
 
-*** Occam's razor
+*** Occam's Razor
 奥卡姆剃刀原理：在所有可能选择的模型中，能够很好的解释已知数据并且十分简单才是最好的模型。
 
 * 心得
