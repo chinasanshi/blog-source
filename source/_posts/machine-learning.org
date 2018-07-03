@@ -473,12 +473,38 @@ E_i^{new} = \sum_S y^{(j)} \alpha_j K(x^{(i)},x^{(j)}) + b^{new} - y^{(i)}
 ** Reinforcement Learning
 强化学习
 
-** Learning Theory
-学习理论用于真正理解机器学习算法，了解怎样修改算法；区分开真正了解算法与只看了书和公式的人，真正成为一个好的木匠。
+** Computational Learning Theory
+计算学习理论用于真正理解机器学习算法，了解怎样修改算法；区分开真正了解算法与只看了书和公式的人，真正成为一个好的木匠。
+
+思考：
++ 学习器(机器的或非机器的)应遵循什么样的规则？
++ 是否可能独立于学习算法确定学习问题中固有的难度？
++ 能否知道为保证成功的学习有多少训练是必要的或充足的？
++ 能否刻画出一类学习问题中固有的计算复杂度？
+对所有这些问题的一般回答还未知。这里着重讨论只给定目标函数的训练样例和候选假设空间的条件下,对该未知的目标函数的归纳学习
+问题。在这样的框架下,主要要解决的问题如:需要多少训练样例才足以成功地学习到目标函数,以及学习器在达到目标前会有多少次出错。
+并对这些问题提出定量的上下界。
+
+
+该理论致力于回答如下的问题:
++ 在什么样的条件下成功的学习是可能的？
++ 在什么条件下一特定的学习算法可保证成功运行？
 
 learning theory split to two central questions:
 1. can we make sure that Eout(g) is close enough to Ein(g) ?
 2. can we make Ein(g) small enough ?
+
+为了解决这些问题，需要许多特殊的条件假设：
++ 怎样定义学习得到的结果是成功的？是必须找到目标概念？还是以较大的概率得到目标概念的近似？
++ 学习器如何得到训练样本？学习器自己由实验获取？还是按照某过程随机的生成而不受学习器的控制？
+
+训练样本集 D 中所有从隐含未知分布 \(\mathcal{D}\) 上独立采样得到，h 是一个从输入空间 \(\mathcal{X}\) 到标记空间
+\(\mathcal{Y}\) 的一个映射，h 在 D 上的经验误差（也就是训练误差）为
+\[ \hat{E}(h;D) = \frac{1}{m} \sum_{i=1}^{m} \mathit{1}(h(x^{(i)} \ne y^{(i)}) \]
+泛化误差为
+\[ E(h;\mathcal{D}) = P_{x \sim \mathcal{D}} (h(x) \ne y) \]
+由于 D 是 \(\mathcal{D}\) 的独立同分布采样，因此 *h 的经验误差的期望等于其泛化误差。* 即
+\[ E[ \hat{E}(h;D) ] = E(h; \mathcal{D}) \]
 
 *** Probably Approximately Correct
 概率近似正确，简称 PAC：通常我们无法精确的学到目标概念（concept）。原因如下：
@@ -489,15 +515,31 @@ learning theory split to two central questions:
 因此我们希望以比较大的把握学的比较好的模型；即以 *较大的概率* 学的 *误差满足预设上限* 的模型。也就成为了“概率”“近似正确”
 框架。
 
-通常假设训练集和测试集服从相同的分布；训练集的样本独立同分布。
+假设输入空间\(\mathcal{X}\)中所有样本服从一个 /隐含未知/ 的分布\(\mathcal{D}\)，训练集 D 中所有样本都是独立地从这个分布
+上采样而得（独立同分布：independent and identically distribution， 简称 i.i.d)。通常假设训练集和测试集服从相同的分布；训
+练集的样本独立同分布。
 
-PAC 可学习：只要从分布\(\mathcal{D}\)中独立同分布采样得到的样例数目 m ，满足
-\(m \geq poly(\frac{1}{\varepsilon},\frac{1}{\delta},size(x),size(c))\)，学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识
+PAC 可学习(PAC Learnable)：只要从分布\(\mathcal{D}\)中独立同分布采样得到的样例数目 m ，满足
+\(m \geq poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)，学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识
 概念类\(\mathcal{C}\)，则称概念类\(\mathcal{C}\)对假设空间\(\mathcal{H}\)而言是 PAC 可学习的，有时也简称概念类
-\(\mathcal{C}\)是 PAC 可学习的。
+\(\mathcal{C}\)是 PAC 可学习的。若算法运行的时间也是多项式函数
+\(poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)，则称概念类\(\mathcal{C}\)是高效 PAC 可学习的
+(efficiently PAC learnable)，称算法 L 是概念类\(\mathcal{C}\)的 PAC 学习算法。
 
+*仅仅要求了训练样本的个数和时间满足一个多项式函数。*
 
+假定学习算法处理每个样本的时间为常数，则算法的时间复杂度等价于样本复杂度。于是我们对算法时间复杂度的关心就转化成对样本复
+杂度的关心。满足 PAC 学习算法 L 所需的\(m \geq
+poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)中最小的 m ，称为学习算法 L 的样本复杂度。
 
+PAC 学习给出了一个抽象地刻画机器学习能力的框架，基于这个框架能对很多重要的问题进行理论探讨：
++ 研究某任务在什么样的条件下可学得较好的模型？
++ 某算法在什么样的条件下可进行有效的学习？
++ 需多少训练样例才能获得较好的模型？
+
+PAC 学习中一个关键因素是假设空间\(\mathcal{H}\)的复杂度；\(\mathcal{H}\)包含了学习算法 L 的所有可能输出，一
+般而言，\(\mathcal{H}\)越大，其包含任意目标概念的可能性越大，但从中找到某个具体目标概念的难度也越大。\(|\mathcal{H}|\)有
+限时，我们称\(\mathcal{H}\)为有限假设空间，否则称为无限假设空间。
 
 *** 术语
 *concept* 概念：表示从样本空间\(\mathcal{X}\)到标记空间\(\mathcal{Y}\)的映射，用符号 c 表示。不要疑惑为什么叫做概念，在机
@@ -508,18 +550,18 @@ PAC 可学习：只要从分布\(\mathcal{D}\)中独立同分布采样得到的�
 *concept class* 概念类：我们希望学的的目标概念构成的集合称为概念类，用符号\(\mathcal{C}\)表示。no see 概念类到底是个什么
 东西？？？？
 
-*hypothesis space* 假设空间：对给定的学习算法\(\mathscr{L}\)，她所考虑的所有可能概念的集合称为假设空间，用符号
+*hypothesis space* 假设空间：对给定的学习算法 L ，她所考虑的所有可能概念的集合称为假设空间，用符号
 \(\mathcal{H}\)表示。学习算法吧自认为可能的目标概念一起构成\(\mathcal{H}\)，学习算法并不可能知道概念类的真实值，因此
-\(mathcal{C}\)和\(\mathcal{H}\)通常是不同的。假设空间中任何一个假设\(h \in \mathcal{H}\)也都是从样本空间\(\mathcal{X}\)
+\(\mathcal{C}\)和\(\mathcal{H}\)通常是不同的。假设空间中任何一个假设\(h \in \mathcal{H}\)也都是从样本空间\(\mathcal{X}\)
 到标记空间\(\mathcal{Y}\)的映射。
 
 *consistent* 一致的：若目标概念 \(c \in \mathcal{H}\) ，则表示\(\mathcal{H}\)中存在假设能将所有示例按照与真实标记一致的
-方式分开，则称该问题对学习算法\(\mathscr{L}\)是 /可分的/ (separable)，也成为一致的；若 \(c \not \in \mathcal{H}\)，则称
+方式分开，则称该问题对学习算法 L 是 /可分的/ (separable)，也称为一致的；若 \(c \not \in \mathcal{H}\)，则称
 为不可分(non-separable)或者不一致(non-consistent)
 
-*PAC Identity* PAC 辨识：对\(0 < \varepsilon, \delta < 1\)，所有\(c \in \mathcal{C}\)和所有的分布\(\mathcal{D}\)，若存在
-学习算法\(mathscr{L}\)，其输出假设\(h \in \mathcal{H}\)满足
-\[ P(E(h) \leq \varespsilon ) \geq 1 - \delta \]
+*PAC Identity* PAC 辨识：对\(0 < \epsilon, \delta < 1\)，所有\(c \in \mathcal{C}\)和所有的分布\(\mathcal{D}\)，若存在
+学习算法 L ，其输出假设\(h \in \mathcal{H}\)满足
+\[ P(E(h) \leq \epsilon ) \geq 1 - \delta \]
 则称学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识概念类\(\mathcal{C}\)
 
 
