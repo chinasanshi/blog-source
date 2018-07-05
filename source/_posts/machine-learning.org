@@ -489,6 +489,8 @@ E_i^{new} = \sum_S y^{(j)} \alpha_j K(x^{(i)},x^{(j)}) + b^{new} - y^{(i)}
 该理论致力于回答如下的问题:
 + 在什么样的条件下成功的学习是可能的？
 + 在什么条件下一特定的学习算法可保证成功运行？
++ 我们真正关心的是泛化误差，却为什么始终在努力减小经验误差？
++ bias / variance 的准确定义
 
 learning theory split to two central questions:
 1. can we make sure that Eout(g) is close enough to Ein(g) ?
@@ -499,12 +501,18 @@ learning theory split to two central questions:
 + 学习器如何得到训练样本？学习器自己由实验获取？还是按照某过程随机的生成而不受学习器的控制？
 
 训练样本集 D 中所有从隐含未知分布 \(\mathcal{D}\) 上独立采样得到，h 是一个从输入空间 \(\mathcal{X}\) 到标记空间
-\(\mathcal{Y}\) 的一个映射，h 在 D 上的经验误差（也就是训练误差）为
-\[ \hat{E}(h;D) = \frac{1}{m} \sum_{i=1}^{m} \mathit{1}(h(x^{(i)} \ne y^{(i)}) \]
-泛化误差为
-\[ E(h;\mathcal{D}) = P_{x \sim \mathcal{D}} (h(x) \ne y) \]
-由于 D 是 \(\mathcal{D}\) 的独立同分布采样，因此 *h 的经验误差的期望等于其泛化误差。* 即
-\[ E[ \hat{E}(h;D) ] = E(h; \mathcal{D}) \]
+\(\mathcal{Y}\) 的一个映射，h 在 D 上的经验误差（也就是训练误差）为\[ \hat{R}(h;D) = \frac{1}{m} \sum_{i=1}^{m}
+\mathit{1}(h(x^{(i)} \ne y^{(i)}) \]泛化误差为\[ R(h;\mathcal{D}) = P_{x \sim \mathcal{D}} (h(x) \ne y) \]由于 D 是
+\(\mathcal{D}\) 的独立同分布采样，因此 *h 的经验误差的期望等于其泛化误差。* 即\[ E[ \hat{R}(h;D) ] = R(h; \mathcal{D})
+\]
+
+note：均值是观察样本的平均值，尽管随机变量一样，但观察到的样本不同，均值很可能不同；期望是一个数学特征，针对于一个随机变
+量。根据大数定律（随机变量序列的前一些项的算术平均值，在某种条件下，收敛到这些项的均值的算术平均值），期望是均值随着样本
+趋于无穷时的极限。
+
+频率的稳定性是概率定义的客观基础。
+
+中心极限定理：在某种一条件下，大量随机变量之和的分布逼近于正态分布。
 
 *** Probably Approximately Correct
 概率近似正确，简称 PAC：通常我们无法精确的学到目标概念（concept）。原因如下：
@@ -519,27 +527,113 @@ learning theory split to two central questions:
 上采样而得（独立同分布：independent and identically distribution， 简称 i.i.d)。通常假设训练集和测试集服从相同的分布；训
 练集的样本独立同分布。
 
-PAC 可学习(PAC Learnable)：只要从分布\(\mathcal{D}\)中独立同分布采样得到的样例数目 m ，满足
-\(m \geq poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)，学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识
-概念类\(\mathcal{C}\)，则称概念类\(\mathcal{C}\)对假设空间\(\mathcal{H}\)而言是 PAC 可学习的，有时也简称概念类
-\(\mathcal{C}\)是 PAC 可学习的。若算法运行的时间也是多项式函数
-\(poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)，则称概念类\(\mathcal{C}\)是高效 PAC 可学习的
-(efficiently PAC learnable)，称算法 L 是概念类\(\mathcal{C}\)的 PAC 学习算法。
+PAC 可学习(PAC Learnable)：只要从分布\(\mathcal{D}\)中独立同分布采样得到的样例数目 m ，满足\(m \geq
+poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)，学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识概念类
+\(\mathcal{C}\)，则称概念类\(\mathcal{C}\)对假设空间\(\mathcal{H}\)而言是 PAC 可学习的，有时也简称概念类\(\mathcal{C}\)
+是 PAC 可学习的。若算法运行的时间也是多项式函数\(poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)，则称概念类
+\(\mathcal{C}\)是高效 PAC 可学习的(efficiently PAC learnable)，称算法 L 是概念类\(\mathcal{C}\)的 PAC 学习算法。
 
 *仅仅要求了训练样本的个数和时间满足一个多项式函数。*
 
 假定学习算法处理每个样本的时间为常数，则算法的时间复杂度等价于样本复杂度。于是我们对算法时间复杂度的关心就转化成对样本复
-杂度的关心。满足 PAC 学习算法 L 所需的\(m \geq
-poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)中最小的 m ，称为学习算法 L 的样本复杂度。
+杂度的关心。满足 PAC 学习算法 L 所需的\(m \geq poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)中最小的 m ，
+称为学习算法 L 的样本复杂度。
+
+不可知 PAC 可学习(agnostic PAC learnable)：
+
+当 \(c \not \in \mathcal{H}\) 时，学习算法无法得到目标概念 c 的 \(\epsilon\) 近似。但是在假设空间 \(\mathcal{H}\) 中必存
+在一个泛化误差最小的假设，找到此假设的 \(\epsilon\) 近似也不失为一个较好的目标。这是不可知学习。
+
 
 PAC 学习给出了一个抽象地刻画机器学习能力的框架，基于这个框架能对很多重要的问题进行理论探讨：
 + 研究某任务在什么样的条件下可学得较好的模型？
 + 某算法在什么样的条件下可进行有效的学习？
 + 需多少训练样例才能获得较好的模型？
 
-PAC 学习中一个关键因素是假设空间\(\mathcal{H}\)的复杂度；\(\mathcal{H}\)包含了学习算法 L 的所有可能输出，一
-般而言，\(\mathcal{H}\)越大，其包含任意目标概念的可能性越大，但从中找到某个具体目标概念的难度也越大。\(|\mathcal{H}|\)有
-限时，我们称\(\mathcal{H}\)为有限假设空间，否则称为无限假设空间。
+PAC 学习中一个关键因素是假设空间\(\mathcal{H}\)的复杂度；\(\mathcal{H}\)包含了学习算法 L 的所有可能输出，一般而言，
+\(\mathcal{H}\)越大，其包含任意目标概念的可能性越大，但从中找到某个具体目标概念的难度也越大。\(|\mathcal{H}|\)有限时，我
+们称\(\mathcal{H}\)为有限假设空间，否则称为无限假设空间。
+
+
+*** Vapnik-Chervonenkis Dimension
+
+Growth Function，增长函数：描述了假设空间 \(\mathcal{H}\) 的表示能力。具体定义为：增长函数 \(\prod_{\mathcal{H}} (m)\)
+表示假设空间 \(\mathcal{H}\) 对 m 个示例所能赋予标记的最大可能结果数。\(\mathcal{H}\) 对示例所能赋予标记的可能结果数越大，
+\(\mathcal{H}\) 的表示能力越强，对学习任务的适应能力越强；反应了假设空间的复杂度。
+
+Dichotomy，对分：对二分类问题来说，\(\mathcal{H}\) 中的假设对 D 中示例赋予标记的每种可能结果称为对 D 的一种对分；每个假
+设会把示例集分为两类，因此称为对分。
+
+Shattering，打散：若假设空间 \(\mathcal{H}\) 能实现对示例集 D 的所有对分，即 \(\prod_{\mathcal{H}} = 2^m\) ，则称示例集
+D 能被假设空间 \(\mathcal{H}\) 打散。
+
+
+现实学习任务所面临的通常是无限假设空间。假设空间无限和 VC 维有限的关系？？
+
+
+*假设空间 \(\mathcal{H}\) 的 VC 维是能被 \(\mathcal{H}\) 打散的最大示例集的大小，* 即
+
+\begin{equation}
+VC(\mathcal{H}) = max\{ m: \prod_{\mathcal{H}} (m) = 2^m \}
+\end{equation}
+
+
+增长函数的上界（增长函数与 VC 维的关系）
+若假设空间 \(\mathcal{H}\) 的 VC 维为 d，
+
+\begin{align}
+& \prod_{\mathcal{H}} \leq \sum_{i=0}^{d} \left( \array {m \\ i} \right), \quad m \in \mathbb{N}, Sauer 引理 \\
+& \prod_{\mathcal{H}} \leq \left( \frac{e \cdot m}{d} \right) ^d, \quad m > d, 推论
+\end{align}
+
+增长函数可用于估计经验误差与泛化误差之间的关系：对假设空间 \(\mathcal{H}, m \in \mathbb{N}, 0 < \epsilon < 1, 任意 \in
+\mathcal{H}\) 有
+
+\begin{equation}
+P \left( \left| E(h) - \hat{E}(h) \right| > \epsilon \right) \leq 4\prod_{\mathcal{H}} (2m) exp(- \frac{m\epsilon^2}{8})
+\end{equation}
+
+泛化误差界：只与样本个数 m 有关；基于 VC 维的泛化误差界是分布无关(distribution-free)、数据独立(data-independent)的。
+*定理：* 若假设空间 \(\mathcal{H}\) 的 VC 维为 d，则对任意 \(m > d, \ 0 < \delta < 1, h \in \mathcal{H}\) 有
+
+\begin{equation}
+P \left( \left| E(h) - \hat{E}(h) \right| \leq \sqrt{\frac{8dln\frac{2em}{d} + 8ln\frac{4}{\delta}}{m}} \right) \geq 1 -
+\delta
+\end{equation}
+
+*定理：任何 VC 维有限的假设空间 \(\mathcal{H}\) 都是（不可知） PAC 可学习的*
+
+*** 不等式定理
+
+The union bound ：\(A_1,A_2,\ldots,A_k\)是 k 个不同的事件，可能并不独立，那么
+
+\begin{equation}
+P(A_1 \cup A_2 \cup \ldots \cup A_k) \leq P(A_1) + P(A_2) + \ldots + P(A_k)
+\end{equation}
+
+Jensen inequality：对任意的凸函数 f(x) ，有
+
+\begin{equation}
+f(E[x]) \leq E[f(x)]
+\end{equation}
+
+Hoeffding inequality，霍夫丁不等式：若\(x_1,x_2,\ldots,x_m\)为 m 个独立随机变量，且满足 \(0 \leq x_i \leq 1\)，则对任意
+\(\epsilon > 0\)，有 
+
+\begin{align}
+P \left( \frac{1}{m} \sum_{i=1}^{m} x_i - \frac{1}{m} \sum_{i=1}^{m} E(x_i) \geq \epsilon \right) \leq exp(-2m \epsilon^2) \\
+P \left( \left| \frac{1}{m} \sum_{i=1}^{m} x_i - \frac{1}{m} \sum_{i=1}^{m} E(x_i) \right| \geq \epsilon \right) \leq
+2exp(-2m \epsilon^2)
+\end{align}
+
+McDiarmid inequality：若\(x_1,x_2,\ldots,x_m\)为 m 个独立随机变量，且对任意 \(1 \leq i \leq m\)，函数 f 满足
+\[ sup_{x_1,\ldots,x_m,x_i^,} | f(x_1,\ldots,x_m) - f(x_1,\ldots,x_{i-1},x_i^,,x_{i+1},\ldots,x_m) | \leq c_i \]
+则对任意 \(\epsilon > 0\)，有
+
+\begin{align}
+P(f(x_1,\ldots,x_m) - E[f(x_1,\ldots,x_m)] \geq \epsilon ) \leq exp(\frac{-2\epsilon^2}{\sum_i c_i^2}) \\
+P( | f(x_1,\ldots,x_m) - E[f(x_1,\ldots,x_m)] | \geq \epsilon ) \leq 2exp(\frac{-2\epsilon^2}{\sum_i c_i^2}) 
+\end{align}
 
 *** 术语
 *concept* 概念：表示从样本空间\(\mathcal{X}\)到标记空间\(\mathcal{Y}\)的映射，用符号 c 表示。不要疑惑为什么叫做概念，在机
@@ -550,19 +644,18 @@ PAC 学习中一个关键因素是假设空间\(\mathcal{H}\)的复杂度；\(\m
 *concept class* 概念类：我们希望学的的目标概念构成的集合称为概念类，用符号\(\mathcal{C}\)表示。no see 概念类到底是个什么
 东西？？？？
 
-*hypothesis space* 假设空间：对给定的学习算法 L ，她所考虑的所有可能概念的集合称为假设空间，用符号
-\(\mathcal{H}\)表示。学习算法吧自认为可能的目标概念一起构成\(\mathcal{H}\)，学习算法并不可能知道概念类的真实值，因此
-\(\mathcal{C}\)和\(\mathcal{H}\)通常是不同的。假设空间中任何一个假设\(h \in \mathcal{H}\)也都是从样本空间\(\mathcal{X}\)
-到标记空间\(\mathcal{Y}\)的映射。
+*hypothesis space* 假设空间：对给定的学习算法 L ，她所考虑的所有可能概念的集合称为假设空间，用符号\(\mathcal{H}\)表示。
+学习算法吧自认为可能的目标概念一起构成\(\mathcal{H}\)，学习算法并不可能知道概念类的真实值，因此\(\mathcal{C}\)和
+\(\mathcal{H}\)通常是不同的。假设空间中任何一个假设\(h \in \mathcal{H}\)也都是从样本空间\(\mathcal{X}\)到标记空间
+\(\mathcal{Y}\)的映射。
 
 *consistent* 一致的：若目标概念 \(c \in \mathcal{H}\) ，则表示\(\mathcal{H}\)中存在假设能将所有示例按照与真实标记一致的
-方式分开，则称该问题对学习算法 L 是 /可分的/ (separable)，也称为一致的；若 \(c \not \in \mathcal{H}\)，则称
-为不可分(non-separable)或者不一致(non-consistent)
+方式分开，则称该问题对学习算法 L 是 /可分的/ (separable)，也称为一致的；若 \(c \not \in \mathcal{H}\)，则称为不可分
+(non-separable)或者不一致(non-consistent)
 
-*PAC Identity* PAC 辨识：对\(0 < \epsilon, \delta < 1\)，所有\(c \in \mathcal{C}\)和所有的分布\(\mathcal{D}\)，若存在
-学习算法 L ，其输出假设\(h \in \mathcal{H}\)满足
-\[ P(E(h) \leq \epsilon ) \geq 1 - \delta \]
-则称学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识概念类\(\mathcal{C}\)
+*PAC Identity* PAC 辨识：对\(0 < \epsilon, \delta < 1\)，所有\(c \in \mathcal{C}\)和所有的分布\(\mathcal{D}\)，若存在学
+习算法 L ，其输出假设\(h \in \mathcal{H}\)满足\[ P(R(h) \leq \epsilon ) \geq 1 - \delta \]则称学习算法能从假设空间
+\(\mathcal{H}\)中 PAC 辨识概念类\(\mathcal{C}\)
 
 
 * 附
