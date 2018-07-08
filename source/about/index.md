@@ -11,6 +11,8 @@ comments: false
 
 > 抓住了这个主要矛盾，一切问题就迎刃而解了 -- 《毛泽东选集.第一卷》
 
+> Fear is your friend. More often than not it show you exactly what you should do. -- TED
+
 > 机会稍纵即逝，不要犹豫，seize it!
 
 > Be the game changer!

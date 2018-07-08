@@ -597,15 +597,16 @@ VC(\mathcal{H}) = max\{ m: \prod_{\mathcal{H}} (m) = 2^m \}
 \mathcal{H}\) 有
 
 \begin{equation}
-P \left( \left| R(h) - \hat{R}(h) \right| > \epsilon \right) \leq 4\prod_{\mathcal{H}} (2m) exp(- \frac{m\epsilon^2}{8})
+P \left( \left| \varepsilon(h) - \hat{\varepsilon}(h) \right| > \epsilon \right) \leq 
+4\prod_{\mathcal{H}} (2m) exp(- \frac{m\epsilon^2}{8})
 \end{equation}
 
 泛化误差界：只与样本个数 m 有关；基于 VC 维的泛化误差界是分布无关(distribution-free)、数据独立(data-independent)的。
 *定理：* 若假设空间 \(\mathcal{H}\) 的 VC 维为 d，则对任意 \(m > d, \ 0 < \delta < 1, h \in \mathcal{H}\) 有
 
 \begin{equation}
-P \left( \left| \varepsilon(h) - \hat{R}(h) \right| \leq \sqrt{\frac{8dln\frac{2em}{d} + 8ln\frac{4}{\delta}}{m}} \right) \geq 1 -
-\delta
+P \left( \left| \varepsilon(h) - \hat{\varepsilon}(h) \right| \leq \sqrt{\frac{8dln\frac{2em}{d} + 
+8ln\frac{4}{\delta}}{m}} \right) \geq 1 - \delta
 \end{equation}
 
 *定理：任何 VC 维有限的假设空间 \(\mathcal{H}\) 都是（不可知） PAC 可学习的*
@@ -618,6 +619,23 @@ Rademacher 复杂度是另一种刻画假设空间复杂度的途径，但在一
 于没有考虑数据自身，基于 VC 维得到的泛化误差界通常比较松（如果考虑数据的分布可能会得到更加确切的泛化误差界），对那些与学
 习问题的典型情况相差甚远的较坏的分布来说尤其如此？？？？？？？TODO
 
+给定训练集 \(D=\{(x^{(1)},y^{(1)}),(x^{(2)},y^{(2)}),\ldots,(x^{(m)},y^{(m)})\}, y^{(i)} = \pm 1\) ，假设 h 的经验误差为
+
+\begin{align}
+\hat{\varepsilon}(h) & = \frac{1}{m} \sum_{i=1}^{m} \mathit{1} (h(x^{(i)}) \ne y^{(i)}) \notag \\
+& = \frac{1}{m} \sum_{i=1}^{m} \frac{1-y^{(i)}h(x^{(i)}}{2} \notag \\
+& = \frac{1}{2} - \frac{1}{2m} \sum_{i=1}^{m} y^{(i)} h(x^{(i)})
+\end{align}
+
+其中 \(\frac{1}{m} \sum_{i=1}^m y^{(i)}h(x^{(i)})\) 体现了预测值 \(h(x^{(i)}\) 与样例真实标记 \(y^{(i)}\) 之间的一致性
+（值越大，表明两者越一致，经验误差越小；若训练样本没有错分的情况则取最大值 1）。也就是说经验误差最小的假设是
+
+\begin{equation}
+arg max_{h \in \mathcal{H}} \frac{1}{m} \sum_{i=1}^m y^{(i)}h(x^{(i)})
+\end{equation}
+
+然而现实任务中样例的标记有时会收到噪声的影响，即由于收到某些随机因素的影响，样例的标记不再是真实的标记。此时选择假设空间
+在训练接（？？？）上表现最好的假设，有时还不如选择事先考虑了随机噪声的假设。
 
 *** 稳定性
 
