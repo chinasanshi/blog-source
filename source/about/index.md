@@ -17,7 +17,7 @@ comments: false
 
 > Be the game changer!
 
-> 自律、自信
+> 自律、自信 Nothing can be don without hope and confidence!
 
 > 最好的想法几乎是在溺水的时候才想出来，就是在极其挣扎的情况下往往能迸发出好的灵感。 -- Terry Savage
 

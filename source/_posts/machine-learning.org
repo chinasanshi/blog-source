@@ -482,37 +482,26 @@ E_i^{new} = \sum_S y^{(j)} \alpha_j K(x^{(i)},x^{(j)}) + b^{new} - y^{(i)}
 + 能否知道为保证成功的学习有多少训练是必要的或充足的？
 + 能否刻画出一类学习问题中固有的计算复杂度？
 对所有这些问题的一般回答还未知。这里着重讨论只给定目标函数的训练样例和候选假设空间的条件下,对该未知的目标函数的归纳学习
-问题。在这样的框架下,主要要解决的问题如:需要多少训练样例才足以成功地学习到目标函数,以及学习器在达到目标前会有多少次出错。
-并对这些问题提出定量的上下界。
-
+问题。
 
 该理论致力于回答如下的问题:
 + 在什么样的条件下成功的学习是可能的？
 + 在什么条件下一特定的学习算法可保证成功运行？
 + 我们真正关心的是泛化误差，却为什么始终在努力减小经验误差？
 + bias / variance 的准确定义
-
-learning theory split to two central questions:
-1. can we make sure that Eout(g) is close enough to Ein(g) ?
-2. can we make Ein(g) small enough ?
++ 需要多少训练样例才足以成功地学习到目标函数，定量的上下界
++ 学习器在达到目标前会有多少次出错，定量的上下界
 
 为了解决这些问题，需要许多特殊的条件假设：
 + 怎样定义学习得到的结果是成功的？是必须找到目标概念？还是以较大的概率得到目标概念的近似？
 + 学习器如何得到训练样本？学习器自己由实验获取？还是按照某过程随机的生成而不受学习器的控制？
 
-训练样本集 D 中所有从隐含未知分布 \(\mathcal{D}\) 上独立采样得到，h 是一个从输入空间 \(\mathcal{X}\) 到标记空间
-\(\mathcal{Y}\) 的一个映射，h 在 D 上的经验误差（也就是训练误差）为\[ \hat{R}(h;D) = \frac{1}{m} \sum_{i=1}^{m}
-\mathit{1}(h(x^{(i)} \ne y^{(i)}) \]泛化误差为\[ R(h;\mathcal{D}) = P_{x \sim \mathcal{D}} (h(x) \ne y) \]由于 D 是
-\(\mathcal{D}\) 的独立同分布采样，因此 *h 的经验误差的期望等于其泛化误差。* 即\[ E[ \hat{R}(h;D) ] = R(h; \mathcal{D})
-\]
-
-note：均值是观察样本的平均值，尽管随机变量一样，但观察到的样本不同，均值很可能不同；期望是一个数学特征，针对于一个随机变
-量。根据大数定律（随机变量序列的前一些项的算术平均值，在某种条件下，收敛到这些项的均值的算术平均值），期望是均值随着样本
-趋于无穷时的极限。
-
-频率的稳定性是概率定义的客观基础。
 
 中心极限定理：在某种一条件下，大量随机变量之和的分布逼近于正态分布。
+
+learning theory split to two central questions:
+1. can we make sure that Eout(g) is close enough to Ein(g) ?
+2. can we make Ein(g) small enough ?
 
 *** Probably Approximately Correct
 概率近似正确，简称 PAC：通常我们无法精确的学到目标概念（concept）。原因如下：
@@ -524,8 +513,18 @@ note：均值是观察样本的平均值，尽管随机变量一样，但观察�
 框架。
 
 假设输入空间\(\mathcal{X}\)中所有样本服从一个 /隐含未知/ 的分布\(\mathcal{D}\)，训练集 D 中所有样本都是独立地从这个分布
-上采样而得（独立同分布：independent and identically distribution， 简称 i.i.d)。通常假设训练集和测试集服从相同的分布；训
-练集的样本独立同分布。
+上采样而得（独立同分布：independent and identically distribution， 简称 i.i.d)。通常假设训练集和测试集服从相同的分布（在
+深度学习中，通常无法保证训练集和测试集分布形同）；训练集的样本独立同分布。
+
+训练样本集 D 中所有从隐含未知分布 \(\mathcal{D}\) 上独立采样得到，h 是一个从输入空间 \(\mathcal{X}\) 到标记空间
+\(\mathcal{Y}\) 的一个映射，h 在 D 上的经验误差（也就是训练误差）为\[ \hat{\varepsilon}(h;D) = \frac{1}{m}
+\sum_{i=1}^{m} \mathit{1}(h(x^{(i)} \ne y^{(i)}) \]泛化误差为\[ \varepsilon(h;\mathcal{D}) = P_{x \sim \mathcal{D}}
+(h(x) \ne y) \]由于 D 是\(\mathcal{D}\) 的独立同分布采样，因此 *h 的经验误差的期望等于其泛化误差。* 即\[ E[
+\hat{\varepsilon}(h;D) ] = \varepsilon(h; \mathcal{D}) \]
+
+note：均值是观察样本的平均值，尽管随机变量一样，但观察到的样本不同，均值很可能不同；期望是一个数学特征，针对于一个随机变
+量。根据大数定律（随机变量序列的前一些项的算术平均值，在某种条件下，收敛到这些项的均值的算术平均值），期望是均值随着样本
+趋于无穷时的极限。频率的稳定性是概率定义的客观基础。
 
 PAC 可学习(PAC Learnable)：只要从分布\(\mathcal{D}\)中独立同分布采样得到的样例数目 m ，满足\(m \geq
 poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)，学习算法能从假设空间\(\mathcal{H}\)中 PAC 辨识概念类
@@ -537,7 +536,7 @@ poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)，学习算法能从
 
 假定学习算法处理每个样本的时间为常数，则算法的时间复杂度等价于样本复杂度。于是我们对算法时间复杂度的关心就转化成对样本复
 杂度的关心。满足 PAC 学习算法 L 所需的\(m \geq poly(\frac{1}{\epsilon},\frac{1}{\delta},size(x),size(c))\)中最小的 m ，
-称为学习算法 L 的样本复杂度。
+称为学习算法 L 的 *样本复杂度。*
 
 不可知 PAC 可学习(agnostic PAC learnable)：
 
@@ -555,9 +554,20 @@ PAC 学习中一个关键因素是假设空间\(\mathcal{H}\)的复杂度；\(\m
 们称\(\mathcal{H}\)为有限假设空间，否则称为无限假设空间。
 
 
+*** 有限假设空间
+**** 可分情形
+目标概念 c 属于假设空间 \(\mathcal{H}\) 就是可分情形。
+
+有限假设空间 \(\mathcal{H}\) 都是 PAC 可学习的。
+
+**** 不可分情形
+目标概念 c 不属于假设空间 \(\mathcal{H}\) 就是不可分情形。假定对于任何 \(h \in \mathcal{H}, \ \hat{\varepsilon}(h) \ne
+0\) 即 \(\mathcal{H}\) 中任何一个假设都会在训练集上出现或多或少的错误。根据霍夫丁不等式可得： *当样例数目 m 较大时，h的
+经验误差是其泛化误差很好的近似* 。
+
 *** Vapnik-Chervonenkis Dimension
 
-VC维用于刻画假设空间的复杂度。
+VC维用于刻画假设空间的复杂度。VC 维的定于与数据分布 \(\mathcal{D}\) 无关（在数据分布未知时，仍能计算出假设空间的VC维）
 
 给定假设空间 \(\mathcal{H}\) 和示例集 \(D=\{x^{(1)},x^{(2)},\ldots,x^{(m)}\}, \mathcal{H} \)中每个假设 h 都能对 D 中示例
 赋予标记，标记结果可表示为 \(h|_D = \{(h(x^{(1)}),h(x^{(2)}),\dots,h(x^{(m)})) \}\) 随着 m 的增大，\(\mathcal{H}\) 中所
@@ -584,6 +594,8 @@ Shattering，打散：若假设空间 \(\mathcal{H}\) 能实现对示例集 D �
 VC(\mathcal{H}) = max\{ m: \prod_{\mathcal{H}} (m) = 2^m \}
 \end{equation}
 
+通常计算 VC 维的方法：若存在大小为 d 的示例集能被 \(\mathcal{H}\) 打散，但不存在任何一个大小为 d + 1 的示例集能被
+\(\mathcal{H}\) 打散，则 \(\mathcal{H}\) 的 VC 维是 d。
 
 增长函数的上界（增长函数与 VC 维的关系）
 若假设空间 \(\mathcal{H}\) 的 VC 维为 d，
@@ -609,7 +621,20 @@ P \left( \left| \varepsilon(h) - \hat{\varepsilon}(h) \right| \leq \sqrt{\frac{8
 8ln\frac{4}{\delta}}{m}} \right) \geq 1 - \delta
 \end{equation}
 
-*定理：任何 VC 维有限的假设空间 \(\mathcal{H}\) 都是（不可知） PAC 可学习的*
+也就是说使用假设类 \(\mathcal{H}\) ，训练样本个数要是 \(VC(\mathcal{H})\) 的线性同阶函数才能够确保能够学的一个较好的假设。
+一般来说，对大多数假设类，其VC维数大约是其参数个数的线性阶。结合这两者，大致可以得到， *训练样本的个数一般要求为参数个数
+的线性同阶* 。理论针对的是独立同分布的随机变量，对于最坏的情况仍然是符合的；实际选取的样本，通常会比较好，并不需要那么多
+样本来训练。
+
+
+*定理：任何 VC 维有限的假设空间 \(\mathcal{H}\) 都是（不可知） PAC 可学习的。* 满足经验风险最小化(Empirical Risk
+Minimization, ERM)原则。
+
+
+**** 为什么 SVM 不会过拟合
+核函数只是将特征映射到了无穷维，但具有较大间隔的线性分类器 VC 维都比较低。VC 维的上界并不依赖特征 X 的维数，SVM 会自动找
+到一个 VC 维低的假设类，而不会过拟合。\(\mathcal{H}\) 只包含较大间隔的线性分类器，间隔最小为 r，假设 \(||x^{(i)}||_2
+\leq R, then VC(\mathcal{H}) \leq \lceil \frac{R^{2}}{4r^{2}} \rceil + 1 \)
 
 *** Rademacher Complexity
 
@@ -637,10 +662,45 @@ arg max_{h \in \mathcal{H}} \frac{1}{m} \sum_{i=1}^m y^{(i)}h(x^{(i)})
 然而现实任务中样例的标记有时会收到噪声的影响，即由于收到某些随机因素的影响，样例的标记不再是真实的标记。此时选择假设空间
 在训练接（？？？）上表现最好的假设，有时还不如选择事先考虑了随机噪声的假设。
 
+Rademacher 随机变量： 以 0.5 的概率取 -1，0.5 的概率取 +1 的随机变量 \(\sigma_i\) 称为 Rademacher 随机变量。
+
+基于 Rademacher 随机变量的经验误差最小假设： \[ sup_{h \in \mathcal{H}} \frac{1}{m} \sum_{i=1}^{m} \sigma_i h(x_i) \] 由
+于 \(\mathcal{H}\) 是无限假设空间，有可能取不到最大值，因此使用上确界代替最大值。考虑 \(\mathcal{H}\) 中所有假设，对上式
+求期望可得（严重不明白取期望的原因，已经是在所有假设中取经验误差最小的那个假设了，为什么还要取期望？？？）\[ E_{\sigma}
+\left[ sup_{h \in \mathcal{H}} \frac{1}{m} \sum_{i=1}^{m} \sigma_i h(x_i) \right] \] 该式体现了假设空间 \(\mathcal{H}\)
+的表达能力。当假设空间中只有一个假设时，该式的值为 0；当有 2^m 个假设时且 \(\mathcal{H}\) 能打散 D 时，该式的值为 1。
+
+令 \(Z = \{z^{(1)}, z^{(2)}, \ldots, z^{(m)}\}, z^{(i)} \in \mathcal{Z}; \quad \mathcal{F}:\mathcal{Z} \to \mathbb{R}\)
+其中 \(\mathcal{Z}\) 和 \(\mathbb{R}\) 都是实数域，\(\mathcal{F}\) 是从 \(\mathcal{Z}\) 到 \(\mathbb{R}\) 的映射簇。则
+函数空间 \(\mathcal{F}\) 关于 Z 的经验 Rademacher 复杂度和关于 \(\mathcal{Z}\) 上分布 \(\mathcal{D}\) 的 Rademacher 复杂
+度分别为下面两个式子
+
+\begin{align}
+\hat{\varepsilon}_Z (\mathcal{F}) & = E_\sigma \left[ sup_{f \in \mathcal{F}} \frac{1}{m} 
+\sum_{i=1}^m \sigma_i f(z^{(i)}) \right] \\
+
+\varepsilon_m (\mathcal{F}) & = E_{Z \in \mathcal{Z}:|Z|=m} \left[ \hat{\varepsilon}_Z (\mathcal{F}) \right] 
+\end{align}
+
+经验 Rademacher 复杂度衡量了函数空间 \(\mathcal{F}\) 与随机噪声在集合 Z 中的相关性；下式表明函数空间 \(\mathcal{F}\) 在
+\(mathcal{Z}\) 上关于分布 \(\mathcal{F}\) 的相关性。
+
+基于 Rademacher 复杂度可得关于函数空间 \(\mathcal{F}\) 的泛化误差界。
+
 *** 稳定性
 
 算法的稳定性研究的是算法在输入发生变化时，输出是否会随之发生较大的变化。
 
+无论是基于 VC 维还是 Rademacher 复杂度来推导泛化误差界，所得到的结果均与具体学习算法无关，适用于所有学习算法。稳定性分析
+不必考虑假设空间中所有可能的假设，只需要根据算法自身的特性来讨论输出假设的泛化误差界。
+
+学习算法 L 关于损失函数 \(\ell\) 满足 \(\beta -\) 均匀稳定性。
+
+基于学习算法的均匀稳定性可以得到学习算法学得假设的泛化误差界。
+
+*若学习算法L是ERM且稳定的，则假设空间 \(\mathcal{H}\) 可学习。*
+
+稳定性与假设空间并无关系，但两者通过算是函数 \(\ell\) 联系起来。
 
 *** 不等式定理
 
@@ -694,7 +754,7 @@ McDiarmid inequality：若\(x_1,x_2,\ldots,x_m\)为 m 个独立随机变量，�
 (non-separable)或者不一致(non-consistent)
 
 *PAC Identity* PAC 辨识：对\(0 < \epsilon, \delta < 1\)，所有\(c \in \mathcal{C}\)和所有的分布\(\mathcal{D}\)，若存在学
-习算法 L ，其输出假设\(h \in \mathcal{H}\)满足\[ P(R(h) \leq \epsilon ) \geq 1 - \delta \]则称学习算法能从假设空间
+习算法 L ，其输出假设\(h \in \mathcal{H}\)满足\[ P(\varepsilon(h) \leq \epsilon ) \geq 1 - \delta \]则称学习算法能从假设空间
 \(\mathcal{H}\)中 PAC 辨识概念类\(\mathcal{C}\)
 
 
