@@ -1,11 +1,11 @@
-#+TITLE:       Machine Learning
+#+TITLE:       Deep Learning
 #+AUTHOR:      Kyle Three Stones
 #+DATE:        <2018-07-12 Thu 07:19>
 #+EMAIL:       kyleemail@163.com
 #+OPTIONS:     H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t tex:t
 #+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
 #+STARTUP: latexpreview
-#+TAGS:        机器学习, 深度学习
+#+TAGS:        深度学习, 机器学习
 #+CATEGORIES:  深度学习
 
 1989 年 Robert Hecht-Nielsen 证明了万能逼近定理：对于任何闭区间的一个连续函数都可以用一个隐含层的 BP 网络来逼近（完成任

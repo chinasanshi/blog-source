@@ -32,8 +32,8 @@
 
 
 **** Last Mean Squares Algorithm
-利用最小二乘法中的误差函数来描述损失函数；利用梯度下降法不断迭代来减小损失函数：先将参数初始化为某个值，然后让损失函数对
-该参数求偏导，将偏导再乘以一个学习速率来更新参数。
+利用最小二乘法中的误差函数来描述损失函数；利用梯度下降法不断迭代来减小损失函数：先将参数初始化为某个值，然后不断迭代跟新
+参数；跟新参数的规则：old value + 学习率 * 损失函数对该参数求偏导。
 
 \begin{align}
 \theta_j & := \theta_j - \alpha \frac{\partial}{\partial \theta_j} J(\theta) \\
@@ -41,7 +41,8 @@
 & := \theta_j + \alpha (y^{(i)} - h_{\theta}(x^{(i)})) x_j^{(i)}, \quad for \ every \ j; \ outer \ for \ every \ i \\
 \end{align}
 
-最小二乘法(ordinary least squares)仅仅是描述损失函数的模型，本身不是一个最优解工具，可以求解线性以及非线性问题。
+最小二乘法(ordinary least squares)仅仅是描述损失函数的模型，本身不是一个最优解工具，可以求解线性以及非线性问题。最优化方
+法有：梯度下降法；矩阵解法；牛顿法；坐标上升法；
 
 梯度下降法：结果与初值有关，且最终一定会结束在某个局部最小值。若维度非常高时，可能不存在局部最小值，可能只是鞍点（深度学
 习）。数学上，某一函数在该点的方向导数沿着梯度方向取得最大值。
@@ -51,6 +52,51 @@
 2. stochastic gradient descent/incremental gradient descent，随机梯度下降法：每次只需要计算一个样本的误差来更新参数。可
    以较快的收敛，但参数结果可能始终在最优解周围徘徊，但在实际应用中可以满足
 3. mini-batch
+
+判断收敛：
++ 两次迭代，发现 \(\theta\) 变化不大
++ \(J(\theta)\) 基本不变 【常用】
+
+**** Maximum Likelihood Estimation - MLE
+
++ 似然：参数的函数
++ 概率：数据的概率
+
+极大似然估计：选择参数 \(\theta\) 使得数据出现的可能性尽可能大。
+
+让所有样本出现的概率最大，需要将每个样本的概率都乘起来，而连乘操作易造成数据下溢，因此通常采用对数似然(log-likelihood)，
+将连乘转换成相加操作。
+
+贝叶斯学派认为参数是未被观测的随机变量，其本身也可有分布。频率学派认为虽然参数未知，但确实客观存在的固定值。极大似然估计
+源自频率学派。
+
+**** Locally Weighted Linear Regression
+
+只利用待预测样本周围的样本来预测结果。
+
+\begin{align}
+w^{(i)} = exp \left( - \frac{(x^{(i)}-x)^2}{2\tau^2} \right) \\
+\sum_i w^{(i)} (y^{(i)} - \theta^T x^{(i)})^2 
+\end{align}
+
+
+**** Logistic Regression
+
+
+**** Perception Learning Algorithm
+
+
+**** Newton's method
+
+
+**** Generalized Linear Models
+
+
+
+**** Gaussian Discriminant Analysis
+
+**** Mixture of Gaussian
+
 
 *** Support Vector Machines - SVM
 *SVM 的基本思想就是求解能够正确划分训练数据集并且几何间隔最大的分离超平面。* 
