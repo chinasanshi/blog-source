@@ -22,6 +22,8 @@ typedef struct NODE {
     int value;
 } Node;
 
+//The key is to use the address of the pointer to the node 
+//which is the address of node->link
 int insert(Node **linkp, int new_value)
 {
     Node *current;
@@ -59,9 +61,8 @@ void printLink(Node **root)
 
 int main()
 {
-    Node *proot;
-    prootf = NULL;
-
+    Node *proot = NULL;
+ 
     insert(&proot, 5);
     insert(&proot, 9);
     insert(&proot, 1);

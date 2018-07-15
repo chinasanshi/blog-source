@@ -4,8 +4,8 @@
 #+EMAIL:       kyleemail@163.com
 #+OPTIONS:     H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t tex:t
 #+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
-#+STARTUP: latexpreview
-#+TAGS:        机器学习, 
+#+STARTUP:     latexpreview
+#+TAGS:        机器学习, 统计学习
 #+CATEGORIES:  机器学习
 
 * ML
@@ -30,6 +30,7 @@
 损失函数(cost function)定义为
 \[ J(\theta) = \frac{1}{2} \sum_{i=1}^m (h_{\theta}(x^{(i)}) - y^{(i)})^2 \]
 
+认为数据服从高斯分布 \(y|x;\theta \thicksim (\mu, \sigma^2)\) ，即其前置概率估计是高斯分布。
 
 **** Last Mean Squares Algorithm
 利用最小二乘法中的误差函数来描述损失函数；利用梯度下降法不断迭代来减小损失函数：先将参数初始化为某个值，然后不断迭代跟新
@@ -44,6 +45,13 @@
 最小二乘法(ordinary least squares)仅仅是描述损失函数的模型，本身不是一个最优解工具，可以求解线性以及非线性问题。最优化方
 法有：梯度下降法；矩阵解法；牛顿法；坐标上升法；
 
+判断收敛：
++ 两次迭代，发现 \(\theta\) 变化不大
++ \(J(\theta)\) 基本不变 【常用】
+
+**** 最优化方法
+***** 梯度下降法
+
 梯度下降法：结果与初值有关，且最终一定会结束在某个局部最小值。若维度非常高时，可能不存在局部最小值，可能只是鞍点（深度学
 习）。数学上，某一函数在该点的方向导数沿着梯度方向取得最大值。
 
@@ -53,9 +61,27 @@
    以较快的收敛，但参数结果可能始终在最优解周围徘徊，但在实际应用中可以满足
 3. mini-batch
 
-判断收敛：
-+ 两次迭代，发现 \(\theta\) 变化不大
-+ \(J(\theta)\) 基本不变 【常用】
+***** Newton's method
+
+牛顿法用于查找一个函数的零点。假如希望找到使得 \(f(\theta) = 0\) 的 \(\theta\) 值。在 \(\theta\) 处，用函数 f 的切线来近
+似 f ，找到切线的零值点；然后在切线的零值点开始继续用该点处的切线来近似表示函数，不断迭代直至参数满足要求。计算零值点时
+可以利用直角三角形一个角的对边的长度除以临边的长度来得到该角的正切值，而正切值就是函数在该点的导数。
+
+\begin{equation]
+\theta := \theta - \frac{f(\theta}{f'(\theta)} 
+\end{equation}
+
+而求解似然函数的极值点，就是找到似然函数导数的零点
+\begin{equation]
+\theta := \theta - \frac{\ell ' (\theta}{\ell ''(\theta)} \\
+\theta := \theta - H^{-1} _{\theta} \sanerror \ell(\theta), \quad Newton-Raphson
+\end{equation}
+
+牛顿法：
++ 优点：初值不影响结果，一般选择 0 为初值；算法一般都会收敛且收敛速度比梯度下降法快很多，是二次收敛(quadratic
+  conversions)[在解距离最优解足够近时，下一次误差为上一次误差的平方]
++ 缺点：每次迭代都需要计算 Hessian 矩阵（n*n维）。如果特征维数较多，代价会比较大。
+
 
 **** Maximum Likelihood Estimation - MLE
 
@@ -70,7 +96,7 @@
 贝叶斯学派认为参数是未被观测的随机变量，其本身也可有分布。频率学派认为虽然参数未知，但确实客观存在的固定值。极大似然估计
 源自频率学派。
 
-**** Locally Weighted Linear Regression
+*** Locally Weighted Linear Regression
 
 只利用待预测样本周围的样本来预测结果。
 
@@ -79,23 +105,133 @@ w^{(i)} = exp \left( - \frac{(x^{(i)}-x)^2}{2\tau^2} \right) \\
 \sum_i w^{(i)} (y^{(i)} - \theta^T x^{(i)})^2 
 \end{align}
 
++ x 是待预测的值，样本距离 x 的距离 \( |x^{(i)} - x| \) 越近，权重越大；
++ 反之则越小。
++ \(\tau\) 称为波长参数，是一个超参，控制着权重随距离下降的速度。\(\tau\) 越小，权重衰减的钟形越窄；
++ \(\tau\) 越大，权重衰减的钟形越宽。而且权值函数的积分可能是正无穷而不是像高斯密度函数那样积分值为 1
 
-**** Logistic Regression
+局部加权线性回归并没有依据训练样本学习得到一些参数，而是在每次预测的时候都需要使用训练样本来决策。是一个非参数学习算法
+(non-parametric)，非正式的可以理解为其参数随着训练样本的增加而增加。
+
+Andrew Moore 的 KD tree 讲述了在训练集较多时，高效计算的方法。
+
+*** Logistic Regression
+
+罗杰斯特回归用于处理二分类问题。由于标记只有两个：0 和 1。所以当计算的结果超过 1 或者小于 0 将变得没有意义。因此选取一个
+函数值从 0 平滑过度到 1 的函数用于将计算求得的结果重映射到区间[0-1]。这样的函数存在很多，但是罗杰斯特回归选择了 sigmoid
+function，也称为 logistic function。利用广义线性模型也会推导出此处选择 sigmoid 函数。
+
+\begin{align}
+g(z) = \frac{1}{1+e^{-z}} \\
+h_{\theta}(x) = g({\theta}^T x) = \frac{1}{1 + e^{-{\theta}^T x}}
+\end{align}
 
 
-**** Perception Learning Algorithm
+假设
+
+\begin{align*}
+P(y=1|x;\theta) & = h_{\theta} (x) \\
+P(y=0|x;\theta) & = 1 - h_{\theta} (x) \\
+P(y|x;\theta) & = (h_{\theta} (x))^y (1 - h_{\theta} (x))^{1-y}
+\end{align*}
+
+似然函数
+
+\begin{align*}
+\ell(\theta) & = ln L(\theta) \\
+& = ln \prod_{i=1}^m p(y|x;\theta)
+& = ln \prod_{i=1}^m (h_{\theta} (x^{(i)}))^{y^{(i)}} (1 - h_{\theta} (x^{(i)}))^{1-y^{(i)}}
+& = \sum_{i=1}^m y^{(i)} ln h(x^{(i)}) + (1-y^{(i)})ln(1-h(x^{(i)}))
+\end{align*}
+
+目标函数对 \(\theta\) 的每个分量求偏导，且求解过程直接使用 sigmoid 函数的导数表达式可简化计算。最终得到参数的迭代表达式
+
+\begin{align}
+\frac{\partial}{\partial \theta_j} \ell(\theta) & = (y-h_{\theta}(x))x_j \\
+\theta_j & := \theta_j + \alpha \sum_{i=1}^m(y^{(i)} - h_{\theta}(x^{(i)})) x_j^{(i)} \\
+\theta_j & := \theta_j + \alpha(y^{(i)} - h_{\theta}(x^{(i)})) x_j^{(i)}
+\end{align}
+
+sigmoid 函数的导数：
+\begin{equation}
+g'(z) = g(z) (1-g(z))
+\end{equation}
+
+认为数据服从伯努利分布 \(y|x;\theta \thicksim Bernoulli(\phi)\) ，即数据的前置概率估计是伯努利分布。
+
+*** Perception Learning Algorithm
+
+sigmoid 函数并没有直接输出样本的类别标记，而是根据输出再与 0.5 进行比较判断样本的类别。感知机算法直接输出样本的类别 0 或
+者 1。其重映射使用了阈值函数来代替 sigmoid 函数。
+
+\begin{align}
+g(z) = \left \{ \begin{array} 1 & if z \geq 0 \\ 0 & if z < 0 \end{array} \right.
+\end{align}
+
+其参数的更新规则直接根据罗杰斯特回归的形式写出，并没有推导计算。
+\begin{align}
+\theta_j & := \theta_j + \alpha(y^{(i)} - h_{\theta}(x^{(i)})) x_j^{(i)}
+\end{align}
+
+感知机尽管表面上和罗杰斯特回归相似，但其实感知机与罗杰斯特回归以及最小二阶线性回归差别很大；感知机无法给出合理的概率解释，
+也无法利用极大似然估计进行推导。
 
 
-**** Newton's method
+*** Generalized Linear Models
+
+**** Exponential Family
+指数函数簇是一系列概率分布函数可以写成如下分布的分布
+
+\begin{align}
+p(y;\eta) = b(y) exp(\eta^T T(y) - a(\eta)) 
+\end{align}
+
++ \(\eta\) 自然参数(natural parameter or canonical parameter) ：一般是一个实数
++ \(T(y)\) 充分统计量(sufficient statistic) ：一般 \( T(y) = y \)
++ \(a(\eta)\) log partition function：用于确保概率之和为 1
+
+选取不同的 T、a、b 会得到不同的函数分布簇，分布簇由参数 \(\eta\) 决定，改变 \(\eta\) 可以得到分布簇中的不同函数分布。
+
+**** 构建广义线性模型
+满足下面三个假设
+1. 数据服从指数分布 \(y|x;\theta \thicksim ExponentialFamily(\eta)
+2. 目标是求 \(E[T(y)|x]\) ，希望 \(h(x)=E[T(y)|x]\)
+3. \(\eta\) 和 x 线性相关： \(\eta=\theta^Tx\)，\(\eta\) 是向量时 \(\quad \eta_i = \theta_i^Tx\)  
 
 
-**** Generalized Linear Models
+正则响应函数(canonical response function)： \(g(\eta) = E[T(y);\eta]\)
+正则关联函数(canonical link function)：\(g^{-1}\)
+
+*** Softmax Regression
+
+数据服从多项式分布(multinominal distribution) 。
+
+softmax function
+
+\begin{align}
+\phi_i = \frac{e^{\eta_i}}{\sum_{j=1}^k e^{\eta_j}}
+\end{align}
+
+softmax regression 假设函数输出
+
+\begin{align}
+h_{\theta}(x) & = E[T(y) | x;\theta] \\
+& = E \left[ \left. \begin{array} \mathit{1}\{y=1\} \\ \mathit{1}\{y=2\} \\ \vdots \\ \mathit{1}\{y=k-1\}  \end{array} 
+\end | x;\theta \right] \\
+& = \left[ \beign{array} \phi_1 \\ \phi_2 \\ \vodts \\ \phi_{k-1} \end{array} \right] \\
+& = \left[ \begin{array} \frac{e^{\theta_1^Tx}}{\sum_{j=1}^k e^{\theta_j^Tx}} 
+\\ \frac{e^{\theta_2^Tx}}{\sum_{j=1}^k e^{\theta_j^Tx}} 
+\\ \vdots 
+\\ \frac{e^{\theta_{k-1}^Tx}}{\sum_{j=1}^k e^{\theta_j^Tx}}
+\end{array} \right]
+\end{align}
 
 
+soft 是相对于 hard ，hard ：非 0 即 1。
 
-**** Gaussian Discriminant Analysis
+*** Gaussian Discriminant Analysis
 
-**** Mixture of Gaussian
+*** Mixture of Gaussian
 
 
 *** Support Vector Machines - SVM
