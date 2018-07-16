@@ -57,8 +57,8 @@
 
 梯度下降法具体包括：
 1. batch gradient descent，批量梯度下降法：每次都需要计算所有样本的误差来更新参数
-2. stochastic gradient descent/incremental gradient descent，随机梯度下降法：每次只需要计算一个样本的误差来更新参数。可
-   以较快的收敛，但参数结果可能始终在最优解周围徘徊，但在实际应用中可以满足
+2. stochastic gradient descent / incremental gradient descent，随机梯度下降法：每次只需要计算一个样本的误差来更新参数。
+   可以较快的收敛，但参数结果可能始终在最优解周围徘徊，但在实际应用中可以满足
 3. mini-batch
 
 ***** Newton's method
@@ -67,14 +67,14 @@
 似 f ，找到切线的零值点；然后在切线的零值点开始继续用该点处的切线来近似表示函数，不断迭代直至参数满足要求。计算零值点时
 可以利用直角三角形一个角的对边的长度除以临边的长度来得到该角的正切值，而正切值就是函数在该点的导数。
 
-\begin{equation]
-\theta := \theta - \frac{f(\theta}{f'(\theta)} 
+\begin{equation}
+\theta := \theta - \frac{f(\theta)}{f'(\theta)} 
 \end{equation}
 
 而求解似然函数的极值点，就是找到似然函数导数的零点
-\begin{equation]
-\theta := \theta - \frac{\ell ' (\theta}{\ell ''(\theta)} \\
-\theta := \theta - H^{-1} _{\theta} \sanerror \ell(\theta), \quad Newton-Raphson
+\begin{equation}
+\theta := \theta - \frac{\ell ' (\theta)}{\ell ''(\theta)} \\
+\theta := \theta - H^{-1} _{\theta} \nabla \ell(\theta), \quad Newton-Raphson
 \end{equation}
 
 牛顿法：
@@ -105,10 +105,9 @@ w^{(i)} = exp \left( - \frac{(x^{(i)}-x)^2}{2\tau^2} \right) \\
 \sum_i w^{(i)} (y^{(i)} - \theta^T x^{(i)})^2 
 \end{align}
 
-+ x 是待预测的值，样本距离 x 的距离 \( |x^{(i)} - x| \) 越近，权重越大；
-+ 反之则越小。
-+ \(\tau\) 称为波长参数，是一个超参，控制着权重随距离下降的速度。\(\tau\) 越小，权重衰减的钟形越窄；
-+ \(\tau\) 越大，权重衰减的钟形越宽。而且权值函数的积分可能是正无穷而不是像高斯密度函数那样积分值为 1
++ x 是待预测的值，样本距离 x 的距离 \( |x^{(i)} - x| \) 越近，权重越大；反之则越小。
++ \(\tau\) 称为波长参数，是一个超参，控制着权重随距离下降的速度。\(\tau\) 越小，权重衰减的钟形越窄；\(\tau\) 越大，权重
+  衰减的钟形越宽。而且权值函数的积分可能是正无穷而不是像高斯密度函数那样积分值为 1
 
 局部加权线性回归并没有依据训练样本学习得到一些参数，而是在每次预测的时候都需要使用训练样本来决策。是一个非参数学习算法
 (non-parametric)，非正式的可以理解为其参数随着训练样本的增加而增加。
@@ -139,8 +138,8 @@ P(y|x;\theta) & = (h_{\theta} (x))^y (1 - h_{\theta} (x))^{1-y}
 
 \begin{align*}
 \ell(\theta) & = ln L(\theta) \\
-& = ln \prod_{i=1}^m p(y|x;\theta)
-& = ln \prod_{i=1}^m (h_{\theta} (x^{(i)}))^{y^{(i)}} (1 - h_{\theta} (x^{(i)}))^{1-y^{(i)}}
+& = ln \prod_{i=1}^m p(y|x;\theta) \\
+& = ln \prod_{i=1}^m (h_{\theta} (x^{(i)}))^{y^{(i)}} (1 - h_{\theta} (x^{(i)}))^{1-y^{(i)}} \\
 & = \sum_{i=1}^m y^{(i)} ln h(x^{(i)}) + (1-y^{(i)})ln(1-h(x^{(i)}))
 \end{align*}
 
@@ -165,7 +164,7 @@ sigmoid 函数并没有直接输出样本的类别标记，而是根据输出再
 者 1。其重映射使用了阈值函数来代替 sigmoid 函数。
 
 \begin{align}
-g(z) = \left \{ \begin{array} 1 & if z \geq 0 \\ 0 & if z < 0 \end{array} \right.
+g(z) = \left \{ \begin{array}{} 1 & if \ z \geq 0 \\ 0 & if \ z < 0 \end{array} \right.
 \end{align}
 
 其参数的更新规则直接根据罗杰斯特回归的形式写出，并没有推导计算。
@@ -194,7 +193,7 @@ p(y;\eta) = b(y) exp(\eta^T T(y) - a(\eta))
 
 **** 构建广义线性模型
 满足下面三个假设
-1. 数据服从指数分布 \(y|x;\theta \thicksim ExponentialFamily(\eta)
+1. 数据服从指数分布 \(y|x;\theta \thicksim ExponentialFamily(\eta)\)
 2. 目标是求 \(E[T(y)|x]\) ，希望 \(h(x)=E[T(y)|x]\)
 3. \(\eta\) 和 x 线性相关： \(\eta=\theta^Tx\)，\(\eta\) 是向量时 \(\quad \eta_i = \theta_i^Tx\)  
 
@@ -216,15 +215,16 @@ softmax regression 假设函数输出
 
 \begin{align}
 h_{\theta}(x) & = E[T(y) | x;\theta] \\
-& = E \left[ \left. \begin{array} \mathit{1}\{y=1\} \\ \mathit{1}\{y=2\} \\ \vdots \\ \mathit{1}\{y=k-1\}  \end{array} 
-\end | x;\theta \right] \\
-& = \left[ \beign{array} \phi_1 \\ \phi_2 \\ \vodts \\ \phi_{k-1} \end{array} \right] \\
-& = \left[ \begin{array} \frac{e^{\theta_1^Tx}}{\sum_{j=1}^k e^{\theta_j^Tx}} 
+& = E \left[ \left. \begin{array}{c} \mathit{1}\{y=1\} \\ \mathit{1}\{y=2\} \\ \vdots \\ \mathit{1}\{y=k-1\}  \end{array} 
+\right | x;\theta \right] \\
+& = \left[ \begin{array}{c} \phi_1 \\ \phi_2 \\ \vdots \\ \phi_{k-1} \end{array} \right] \\
+& = \left[ \begin{array}{c} \frac{e^{\theta_1^Tx}}{\sum_{j=1}^k e^{\theta_j^Tx}} 
 \\ \frac{e^{\theta_2^Tx}}{\sum_{j=1}^k e^{\theta_j^Tx}} 
 \\ \vdots 
 \\ \frac{e^{\theta_{k-1}^Tx}}{\sum_{j=1}^k e^{\theta_j^Tx}}
 \end{array} \right]
 \end{align}
+
 
 
 soft 是相对于 hard ，hard ：非 0 即 1。
@@ -250,36 +250,36 @@ soft 是相对于 hard ，hard ：非 0 即 1。
 **** 算法演进过程：
 
 \begin{align}
-max_{w, b} \quad & \gamma \\
+\max_{w, b} & \gamma \\
 s.t. \quad & y^{(i)} \left( \frac{w}{||w||} \cdot x^{(i)} + \frac{b}{||w||} \right) 
 \geq \gamma, \quad i=1,2,\cdots,m
 \end{align}
 
 \begin{align}
-max_{w, b} \quad & \frac{\hat{\gamma}}{||w||} \\
+\max_{w, b} & \frac{\hat{\gamma}}{||w||} \\
 s.t. \quad & y^{(i)} \left( w \cdot x^{(i)} + b \right) \geq \hat{\gamma}, \quad i=1,2,\cdots,m
 \end{align}
 
 \begin{align}
-min_{w, b} \quad & \frac{1}{2}||w||^2 \\
+\min_{w, b} & \frac{1}{2}||w||^2 \\
 s.t. \quad & y^{(i)} \left( w \cdot x^{(i)} + b \right) \geq 1, \quad i=1,2,\cdots,m
 \end{align}
 
 \begin{align}
-min_{w, b, \color{red}{\xi_i}} \quad & \frac{1}{2}||w||^2 + C\sum_{i=1}^m \xi_i \\
+\min_{w, b, \color{red}{\xi_i}} & \frac{1}{2}||w||^2 + C\sum_{i=1}^m \xi_i \\
 s.t. \quad & y^{(i)} \left( w \cdot x^{(i)} + b \right) \geq 1 - \xi_i, \quad i=1,2,\cdots,m \\
 & \xi_i \geq 0, \quad i=1,2,\cdots,m
 \end{align}
 
 \begin{align}
-max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
+\max_{\alpha} & W(\alpha) = \sum_{i=1}^m \alpha_i - 
 \frac{1}{2} \sum_{i,j=1}^m y^{(i)}y^{(j)} \alpha_i\alpha_j \left \langle x^{(i)},x^{(j)} \right \rangle \\
 s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\cdots,m \\
 & \sum_{i=1}^m \alpha_i y^{(i)} = 0
 \end{align}
 
 \begin{align}
-max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
+\max_{\alpha} & W(\alpha) = \sum_{i=1}^m \alpha_i - 
 \frac{1}{2} \sum_{i,j=1}^m y^{(i)}y^{(j)} \alpha_i\alpha_j K( x^{(i)},x^{(j)} ) \\
 s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\cdots,m \\
 & \sum_{i=1}^m \alpha_i y^{(i)} = 0
@@ -321,7 +321,7 @@ Karush-Kuhn-Tucker (KKT) 条件时，原问题和对偶问题的解相同；并�
 构成了原问题及对偶问题。
 
 \begin{align}
-min_{w} \quad & f(w) \\
+\min_{w} & f(w) \\
 s.t. \quad & g_i (w) \leq 0, \quad i=1,2,\cdots,k \\
 & h_i (w) = 0, \quad i=1,2,\cdots,l
 \end{align}
@@ -331,23 +331,23 @@ s.t. \quad & g_i (w) \leq 0, \quad i=1,2,\cdots,k \\
 \end{equation}
 
 \begin{align}
-\theta_p(w) & = max_{\alpha,\beta:\alpha_i \geq 0} \ \mathcal{L}(w, \alpha, \beta) \\
-min_w \theta_p(w) & = min_w max_{\alpha,\beta:\alpha_i \geq 0} \ L(w, \alpha, \beta) \\
-p^* & = min_w \ \theta_p(w) 
+\theta_p(w) & = \max_{\alpha,\beta:\alpha_i \geq 0} \mathcal{L}(w, \alpha, \beta) \\
+\min_w \theta_p(w) & = \min_w \max_{\alpha,\beta:\alpha_i \geq 0} \ L(w, \alpha, \beta) \\
+p^* & = \min_w \ \theta_p(w) 
 \end{align}
 
 \begin{align}
-\theta_D(\alpha, \beta) & = min_w \ \mathcal{L}(w, \alpha, \beta) \\
+\theta_D(\alpha, \beta) & = \min_w \mathcal{L}(w, \alpha, \beta) \\
 
-max_{\alpha,\beta:\alpha_i \geq 0} \ \theta_D(\alpha, \beta) & = max_{\alpha,\beta:\alpha_i \geq 0}\ 
-min_w \ \mathcal{L}(w, \alpha, \beta) \\
+\max_{\alpha,\beta:\alpha_i \geq 0} \theta_D(\alpha, \beta) & = \max_{\alpha,\beta:\alpha_i \geq 0}\ 
+\min_w \mathcal{L}(w, \alpha, \beta) \\
 
-d^* & = max_{\alpha,\beta:\alpha_i \geq 0} \ \theta_D(\alpha, \beta)
+d^* & = \max_{\alpha,\beta:\alpha_i \geq 0} \theta_D(\alpha, \beta)
 \end{align}
 
 \begin{equation}
-d^* = max_{\alpha,\beta:\alpha_i \geq 0}\ min_w \ \mathcal{L}(w, \alpha, \beta) \leq
-min_w max_{\alpha,\beta:\alpha_i \geq 0} \ \mathcal{L}(w, \alpha, \beta) = p^*
+d^* = \max_{\alpha,\beta:\alpha_i \geq 0}\min_w \mathcal{L}(w, \alpha, \beta) \leq
+\min_w \max_{\alpha,\beta:\alpha_i \geq 0} \mathcal{L}(w, \alpha, \beta) = p^*
 \end{equation}
 
 将原始的问题转换成拉格朗日函数，其中\(\alpha_i\) 和 \(\beta_i\)都是拉格朗日乘子，而且不等式约束\(g_i(w)\leq0\)，要求其拉
@@ -363,7 +363,7 @@ min_w max_{\alpha,\beta:\alpha_i \geq 0} \ \mathcal{L}(w, \alpha, \beta) = p^*
 而对偶问题就是调节一下求解的参数的顺序。原问题中先对参数\(\alpha,\beta\)求最大，然后对\(w\)求最小；对偶问题中先对参数
 \(w\)求最小，然后再对参数\(\alpha,\beta\)求最大，也就是对调了 max 和 min 的求解顺序，仅此而已。
 
-由于\(max min(\cdots) \leq min max(\cdots)\)，所以\(d^* \leq p^*\)。并且当\(w,\alpha,\beta\)满足 KKT 条件时，原问题的解和
+由于\(\max \min(\cdots) \leq \min \max(\cdots)\)，所以\(d^* \leq p^*\)。并且当\(w,\alpha,\beta\)满足 KKT 条件时，原问题的解和
 对偶问题的解相同即\(p^*=d^*\)。反之也成立，即如果原问题和对偶问题的解相同，那么\(w,\alpha,\beta\)满足 KKT 条件。
 
 \begin{align}
@@ -404,15 +404,15 @@ C- \alpha_i -\mu_i = 0
 将结果带入原问题的拉格朗日函数，
 
 \begin{align}
-min_{w,b,\xi} \mathcal{L}(w,b,\xi,\alpha,\mu) = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j 
+\min_{w,b,\xi} \mathcal{L}(w,b,\xi,\alpha,\mu) = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j 
 y^{(i)}y^{(j)} \langle x^{(i)}x^{(j)} \rangle + \sum_{i=1}^m\alpha_i
 \end{align}
 
-再对\(min_{w,b,\xi}\mathcal{L}(w,b,\xi,\alpha,\mu)\)求参数\(\alpha\)的极大，就得到了对偶问题目标函数的表达式，连同上面得
+再对\(\min_{w,b,\xi}\mathcal{L}(w,b,\xi,\alpha,\mu)\)求参数\(\alpha\)的极大，就得到了对偶问题目标函数的表达式，连同上面得
 到的约束，共同构成对偶问题：
 
 \begin{align}
-max_\alpha \quad & = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j y^{(i)}y^{(j)} 
+\max_\alpha & = -\frac{1}{2}\sum_{i=1}^m\sum_{i=1}^m \alpha_i\alpha_j y^{(i)}y^{(j)} 
 \langle x^{(i)}x^{(j)}\rangle + \sum_{i=1}^m\alpha_i \\
 s.t. \quad & = \sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
 & C - \alpha_i - \mu_i = 0, \quad i=1,2,\cdots,m \\
@@ -425,7 +425,7 @@ s.t. \quad & = \sum_{i=1}^m \alpha_i y^{(i)} = 0 \\
 用核函数的最终形式\(K(x^{(i)},x^{(j)})\)得到对偶问题的最终形式
 
 \begin{align}
-max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
+\max_{\alpha} W(\alpha) & = \sum_{i=1}^m \alpha_i - 
 \frac{1}{2} \sum_{i,j=1}^m y^{(i)}y^{(j)} \alpha_i\alpha_j K( x^{(i)},x^{(j)} ) \\
 s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\cdots,m \\
 & \sum_{i=1}^m \alpha_i y^{(i)} = 0
@@ -481,7 +481,7 @@ TODO 举一个核函数和映射函数表达式的例子
 数具体的值由对偶问题通过 SMO 算法求得。原问题可以表示为
 
 \begin{align}
-min_{w, b,\xi_i} \quad & \frac{1}{2}||w||^2 + C\sum_{i=1}^m \xi_i \\
+\min_{w, b,\xi_i} & \frac{1}{2}||w||^2 + C\sum_{i=1}^m \xi_i \\
 s.t. \quad & -[y^{(i)} \left( w \cdot x^{(i)} + b \right) - 1 + \xi_i] \leq 0, \quad i=1,2,\cdots,m \\
 & -\xi_i \leq 0, \quad i=1,2,\cdots,m
 \end{align}
@@ -537,7 +537,7 @@ KKT 对偶互补条件中两个变量都为零？？？ TODO
 序列最小最优化算法求解的对象是凸二次规划的对偶问题：
 
 \begin{align}
-max_{\alpha} \quad & W(\alpha) = \sum_{i=1}^m \alpha_i - 
+\max_{\alpha} W(\alpha) & = \sum_{i=1}^m \alpha_i - 
 \frac{1}{2} \sum_{i,j=1}^m y^{(i)}y^{(j)} \alpha_i\alpha_j K(x^{(i)},x^{(j)}) \\
 s.t. \quad & 0 \leq \alpha_i \leq C, \quad i = 1,2,\cdots,m \\
 & \sum_{i=1}^m \alpha_i y^{(i)} = 0
@@ -590,9 +590,9 @@ W(\alpha_1,\alpha_2,\cdots,\alpha_m) = W((\zeta - \alpha_2 y^{(2)})y^{(1)},\alph
 
 \begin{align}
 & if \ y^{(1)} \neq y^{(2)} \notag \\
-& L=max(0, \alpha_2^{old} - \alpha_1^{old}),  H=min(C,C+\alpha_2^{old}-\alpha_1^{old}) \\
+& L=\max(0, \alpha_2^{old} - \alpha_1^{old}),  H=\min(C,C+\alpha_2^{old}-\alpha_1^{old}) \\
 & if \ y^{(1)} = y^{(2)} \notag \\
-& L=max(0,\alpha_2^{old} + \alpha_1^{old}-C), H=min(C,\alpha_2^{old}+\alpha_2{old}) 
+& L=\max(0,\alpha_2^{old} + \alpha_1^{old}-C), H=\min(C,\alpha_2^{old}+\alpha_2{old}) 
 \end{align}
 
 先只要求满足线性约束，求解得到\alpha_2^{new,unclipped} 然后再裁剪来满足 box constraints
@@ -737,7 +737,7 @@ Q(\theta,\theta^{t}) & = E_{z|x;\theta^{t}} [ ln \mathcal{P}(x,z;\theta) ] \\
    \theta^{t})\) \[ Q(\theta,\theta^{t}) = \sum_z \left( ln \mathcal{P} (x,z;\theta) \right)
    \mathcal{P}(z|x;\theta^{t})\] 需要先求解 \(\mathcal{P}(z|x;\theta^{t})\)
 3. M-step：求使 \(Q(\theta, \theta^{t})\) 极大化的 \(\theta\) ，确定第 t+1 次迭代的参数估计值 \(\theta^{t+1}\)
-   \[ \theta^{t+1} = arg max_{\theta} Q(\theta, \theta^{t}) \]
+   \[ \theta^{t+1} = arg \max_{\theta} Q(\theta, \theta^{t}) \]
 4. 重复 E-step 和 M-step ，直到收敛。一般是用较小的正数 \(\epsilon_1,\epsilon_2\)，若满足 \(||\theta^{t+1}|| <
    \epsilon_1 \ or \ ||Q(\theta, \theta^{t+1}) - Q(\theta, \theta^{t})|| < \epsilon_2 \) 则停止迭代。
 
@@ -772,7 +772,7 @@ EM 算法最大的优点是简单性和普适性。
 (expected loss)（样本 x 的条件风险(conditional risk)） \(\varepsilon(c_i | x) = \sum_{j=1}^{K} \lambda_{ij} P(c_j | x)
 \) 。我们的任务是寻找一个判定准则以最小化总体风险 \(\varepsilon(h) = E_x [\varepsilon(h(x) | x)] \) 。贝叶斯判定准则
 (Bayes decision rule)：为最小化总体风险，只需要在每个样本上选择那个能使条件风险 \(\varepsilon(c|x)\) 最小的类别标记，即
-\(h^*(x) = arg min_{c \in \mathcal{Y}} \varepsilon(c | x) \) ，此时 \(h^*\) 称为 *贝叶斯最优分类器* (Bayes optimal
+\(h^*(x) = arg \min_{c \in \mathcal{Y}} \varepsilon(c | x) \) ，此时 \(h^*\) 称为 *贝叶斯最优分类器* (Bayes optimal
 classifier)，与之相对应的总体风险 \(\varepsilon(h^*)\) 称为贝叶斯风险(Bayes risk)，\(1 - \varepsilon(h^*)\) 反应了贝叶斯
 分类器所能达到的最好性能，即通过机器学习所能产生的模型精度的理论上限。
 
@@ -796,7 +796,7 @@ P(c|x) = \frac{P(c)P(x|c)}{P(x)} = \frac{P(c)P(x_1,x_2,\cdots,x_d|c)}{P(x)} = \f
 由于对所有类别来说 P(x) 相同，根据贝叶斯判定准则可得朴素贝叶斯分类器的表达式为
 
 \begin{equation}
-h^*(x) = arg max_{c \in \mathcal{Y}} P(c) \prod_{i=1}^d P(x_i|c)
+h^*(x) = arg \max_{c \in \mathcal{Y}} P(c) \prod_{i=1}^d P(x_i|c)
 \end{equation}
 
 朴素贝叶斯将实例分到后验概率最大的类别中，等价于期望风险最小化。朴素贝叶斯法高效，且易于实现；但分类的性能不一定很高。
@@ -959,7 +959,7 @@ Shattering，打散：若假设空间 \(\mathcal{H}\) 能实现对示例集 D �
 *假设空间 \(\mathcal{H}\) 的 VC 维是能被 \(\mathcal{H}\) 打散的 /最大示例集/ 的大小，* 即
 
 \begin{equation}
-VC(\mathcal{H}) = max\{ m: \prod_{\mathcal{H}} (m) = 2^m \}
+VC(\mathcal{H}) = \max\{ m: \prod_{\mathcal{H}} (m) = 2^m \}
 \end{equation}
 
 通常计算 VC 维的方法：若存在大小为 d 的示例集能被 \(\mathcal{H}\) 打散，但不存在任何一个大小为 d + 1 的示例集能被
@@ -1024,7 +1024,7 @@ Rademacher 复杂度是另一种刻画假设空间复杂度的途径，但在一
 （值越大，表明两者越一致，经验误差越小；若训练样本没有错分的情况则取最大值 1）。也就是说经验误差最小的假设是
 
 \begin{equation}
-arg max_{h \in \mathcal{H}} \frac{1}{m} \sum_{i=1}^m y^{(i)}h(x^{(i)})
+arg \max_{h \in \mathcal{H}} \frac{1}{m} \sum_{i=1}^m y^{(i)}h(x^{(i)})
 \end{equation}
 
 然而现实任务中样例的标记有时会收到噪声的影响，即由于收到某些随机因素的影响，样例的标记不再是真实的标记。此时选择假设空间
