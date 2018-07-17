@@ -2,6 +2,6 @@
 #+AUTHOR:      kyle Three Stone
 #+DATE:        <2018-05-24 Thu>
 #+EMAIL:       kyleemail@163.com
-#+OPTIONS:     H:3 num:nil toc:t \n:nil @:t ::t |:t ^:t f:t TeX:t
+#+OPTIONS:     H:3 num:t toc:t \n:nil @:t ::t |:t ^:t f:t TeX:t
 #+TAGS:        Git, Linux
 #+CATEGORIES:  Git

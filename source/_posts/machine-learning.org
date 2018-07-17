@@ -116,8 +116,8 @@ Andrew Moore 的 KD tree 讲述了在训练集较多时，高效计算的方法�
 
 *** Logistic Regression
 
-罗杰斯特回归用于处理二分类问题。由于标记只有两个：0 和 1。所以当计算的结果超过 1 或者小于 0 将变得没有意义。因此选取一个
-函数值从 0 平滑过度到 1 的函数用于将计算求得的结果重映射到区间[0-1]。这样的函数存在很多，但是罗杰斯特回归选择了 sigmoid
+逻辑斯蒂回归用于处理二分类问题。由于标记只有两个：0 和 1。所以当计算的结果超过 1 或者小于 0 将变得没有意义。因此选取一个
+函数值从 0 平滑过度到 1 的函数用于将计算求得的结果重映射到区间[0-1]。这样的函数存在很多，但是逻辑斯蒂回归选择了 sigmoid
 function，也称为 logistic function。利用广义线性模型也会推导出此处选择 sigmoid 函数。
 
 \begin{align}
@@ -167,12 +167,12 @@ sigmoid 函数并没有直接输出样本的类别标记，而是根据输出再
 g(z) = \left \{ \begin{array}{} 1 & if \ z \geq 0 \\ 0 & if \ z < 0 \end{array} \right.
 \end{align}
 
-其参数的更新规则直接根据罗杰斯特回归的形式写出，并没有推导计算。
+其参数的更新规则直接根据逻辑斯蒂回归的形式写出，并没有推导计算。
 \begin{align}
 \theta_j & := \theta_j + \alpha(y^{(i)} - h_{\theta}(x^{(i)})) x_j^{(i)}
 \end{align}
 
-感知机尽管表面上和罗杰斯特回归相似，但其实感知机与罗杰斯特回归以及最小二阶线性回归差别很大；感知机无法给出合理的概率解释，
+感知机尽管表面上和逻辑斯蒂回归相似，但其实感知机与逻辑斯蒂回归以及最小二阶线性回归差别很大；感知机无法给出合理的概率解释，
 也无法利用极大似然估计进行推导。
 
 
@@ -196,6 +196,46 @@ p(y;\eta) = b(y) exp(\eta^T T(y) - a(\eta))
 1. 数据服从指数分布 \(y|x;\theta \thicksim ExponentialFamily(\eta)\)
 2. 目标是求 \(E[T(y)|x]\) ，希望 \(h(x)=E[T(y)|x]\)
 3. \(\eta\) 和 x 线性相关： \(\eta=\theta^Tx\)，\(\eta\) 是向量时 \(\quad \eta_i = \theta_i^Tx\)  
+
+步骤：
+1. 先假设 \(y|x\) 服从某个分布（如高斯、泊松、伯努利、多项式等），即确定先验
+2. 将该分布表示成指数函数的形式，确定出指数函数的 T、a、b
+3. 依据假设 2 用期望会很容易表示出假设函数 \(h_{\theta}(x)\) （一般需要用到步骤 2 中计算出的参数）
+4. 用所有样本条件概率的乘积表示出似然函数。（利用最大似然来求解参数）
+5. 利用某种最优化方法（梯度下降法、牛顿法）求解最大似然
+
+高斯分布表示成指数函数：
+\begin{align*}
+T(y) & = y \\
+\eta & = \mu \\
+a(\eta) & = \frac{ {\mu}^2 }{2} = \frac{ {\eta}^2 }{2} \\
+b(y) & = \frac{1}{\sqrt{2\pi}} e^{\frac{-y^2}{2}}
+\end{align*}
+
+推导得到的假设函数：
+\begin{align*}
+h_{\theta}(x) & = E[y|x;\theta] \\
+& = \mu \\
+& = \eta \\
+& = {\theta}^T x
+\end{align*}
+
+伯努利分布表示称指数函数：
+\begin{align*}
+T(y) & = y \\
+\eta & = ln \frac{\phi}{1-\phi} \\
+a(\eta) & = -ln(1-\phi) \\
+& = ln(1+e^{\eta}) \\
+b(y) & = 1
+\end{align*}
+
+推导出的假设函数：
+\begin{align*}
+h_{\theta}(x) & = E[y|x;\theta] \\
+& = \phi \\
+& = \frac{1}{1+e^{-\eta}} \\
+& = \frac{1}{1+e^{-{\theta}^T x}}
+\end{align*}
 
 
 正则响应函数(canonical response function)： \(g(\eta) = E[T(y);\eta]\)
@@ -225,14 +265,30 @@ h_{\theta}(x) & = E[T(y) | x;\theta] \\
 \end{array} \right]
 \end{align}
 
-
+多项式分布表示成指数函数的形式：
+\begin{align*}
+T(i) & = [ \begin{array}{} 0 & 0 & \cdots & 1_i & \cdots & 0 \end{array} ]_{k-1}^T \\
+\eta & = \left[ \begin{array}{c} ln(\frac{\phi_1}{\phi_k}) \\ ln(\frac{\phi_2}{\phi_k}) \\ \vdots 
+\\ ln(\frac{\phi_{k-1}}{\phi_k}) \end{array} \right] \\
+a(\eta) & = -ln({\phi}_k) \\
+b(y) & = 1
+\end{align*}
 
 soft 是相对于 hard ，hard ：非 0 即 1。
 
 *** Gaussian Discriminant Analysis
 
+判别学习模型：尝试找到一条决策线，可以直接得到新样本属于决策线的哪一侧；即由数据直接学习决策函数 f(X) 或者条件概率分布
+P(Y|X) 作为预测的模型。特点：准确率更高，简化学习问题（可以对数据进行各种程度上的抽象，定义特征并使用特征）。典型的判别
+模型包括： k 近邻法、感知机、决策树、逻辑斯蒂回归模型、最大熵模型、支持向量机、提升方法、条件随机场。
+
+生成学习模型：分别为每个类别建模，判定新样本更符合哪个类别。由数据学习联合概率分布 P(Y|X) ，然后求出条件概率分布 P(Y|x)
+作为预测模型。特点：可以还原出联合概率分布，学习收敛速度更快，存在隐变量时仍可以使用。典型的生成模型有：朴素贝叶斯法、隐
+马尔科夫模型。
+
 *** Mixture of Gaussian
 
+*** Factor Analysis
 
 *** Support Vector Machines - SVM
 *SVM 的基本思想就是求解能够正确划分训练数据集并且几何间隔最大的分离超平面。* 

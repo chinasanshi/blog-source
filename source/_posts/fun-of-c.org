@@ -2,7 +2,7 @@
 #+AUTHOR:      Kyle Three Stones
 #+DATE:        [2018-05-29 Tue]
 #+EMAIL:       kyleemail@163.com
-#+OPTIONS:     H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:t f:t TeX:t
+#+OPTIONS:     H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t TeX:t
 #+TAGS:        C
 #+CATEGORIES:  language
 
