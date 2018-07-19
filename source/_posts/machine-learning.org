@@ -158,6 +158,20 @@ g'(z) = g(z) (1-g(z))
 
 认为数据服从伯努利分布 \(y|x;\theta \thicksim Bernoulli(\phi)\) ，即数据的前置概率估计是伯努利分布。
 
++ TP -- 将正类预测为正类的个数；true positive
++ FN -- 将正类预测为负类的个数；false negative
++ TN -- 将负类预测为负类的个数；true negative
++ FP -- 将负类预测为正类的个数；false positive
+
+准确率、召回率、以及两者的调和均值（准确率和召回率都高的时候也会高）：
+\begin{gather}
+P = \frac{ TP }{ TP + FP } \\
+R = \frac{ TP }{ TP + FN } \\
+\frac{2}{F_1} = \frac{1}{P} + \frac{1}{R} \\
+F_1 = \frac{2TP}{2TP + FP + FN}
+\end{gather}
+
+
 *** Perception Learning Algorithm
 
 sigmoid 函数并没有直接输出样本的类别标记，而是根据输出再与 0.5 进行比较判断样本的类别。感知机算法直接输出样本的类别 0 或
@@ -282,13 +296,68 @@ soft 是相对于 hard ，hard ：非 0 即 1。
 P(Y|X) 作为预测的模型。特点：准确率更高，简化学习问题（可以对数据进行各种程度上的抽象，定义特征并使用特征）。典型的判别
 模型包括： k 近邻法、感知机、决策树、逻辑斯蒂回归模型、最大熵模型、支持向量机、提升方法、条件随机场。
 
-生成学习模型：分别为每个类别建模，判定新样本更符合哪个类别。由数据学习联合概率分布 P(Y|X) ，然后求出条件概率分布 P(Y|x)
+生成学习模型：分别为每个类别建模，判定新样本更符合哪个类别。由数据学习联合概率分布 P(X，Y) ，然后求出条件概率分布 P(Y|X)
 作为预测模型。特点：可以还原出联合概率分布，学习收敛速度更快，存在隐变量时仍可以使用。典型的生成模型有：朴素贝叶斯法、隐
 马尔科夫模型。
 
-*** Mixture of Gaussian
+高斯判别模型是一个生成模型（既然是生成模型为啥加判别模型？？）。输入特征 x 是连续随机变量，使用多元高斯模型对不同的类别
+进行建模，不同的类别使用相应的协方差。模型如下：
 
-*** Factor Analysis
+\begin{gather}
+y \sim Bernoulli(\phi) \\
+x|y = 0 \sim \mathcal{N} (\mu_0, \sum) \\
+x|y = 1 \sim \mathcal{N} (\mu_1, \sum)
+\end{gather}
+
+可以写出相应的概率分布：（模型的参数有 \(\phi, \ \sum \ \mu_0 \ \mu_1\)）
+\begin{align*}
+p(y) & = \phi^y (1 - \phi)^{1-y} \\
+p(x|y=0) & = \frac{1}{(2\pi)^{n/2} |\sum|^{1/2}} exp \left( -\frac{1}{2} (x-\mu_0)^T \sum^{-1} (x-\mu_0) \right) \\
+p(x|y=0) & = \frac{1}{(2\pi)^{n/2} |\sum|^{1/2}} exp \left( -\frac{1}{2} (x-\mu_1)^T \sum^{-1} (x-\mu_1) \right)
+\end{align*}
+
+写出对数似然函数（联合似然 Joint likelihood）：
+\begin{align*}
+\ell (\phi, \mu_0, \mu_1, \sum) & = ln \prod_{i=1}^m p(x^{(i)}, y^{(i)}; \phi,\mu_0,\mu_1,\sum) \\
+& = ln \prod_{i=1}^m p(x^{(i)}|y^{(i)};\mu_0,\mu_1,\sum) p(y^{(i)};\phi)
+\end{align*}
+
+将对数似然函数分别对各个参数求偏导，并令结果等于零，可求解得各个参数：
+\begin{align*}
+\phi & = \frac{1}{m} \sum_{i=1}^m \mathit{1}\{y^{(i)} = 1\} \\
+\mu_0 & = \frac{ \sum_{i=1}^m \mathit{1}\{y^{(i)} = 0\} x^{(i)} }{ \sum_{i=1}^m \mathit{1} \{ y^{(i)} = 0\} } \\
+\mu_1 & = \frac{ \sum_{i=1}^m \mathit{1}\{y^{(i)} = 1\} x^{(i)} }{ \sum_{i=1}^m \mathit{1} \{ y^{(i)} = 1\} } \\
+\sum & = \frac{1}{m} \sum_{i=1}^m (x^{(i)} - \mu_{y^{(i)}})(x^{(i)} - \mu_{y^{(i)}})^T
+\end{align*}
+
+预测
+\begin{align*}
+& arg \max_y p(y|x) \\
+& = arg \max_y \frac{p(x|y)p(y)}{p(x)} \\
+& = arg \max_y p(x|y)p(y) \\
+& = arg \max_y p(x|y) \quad \text{if p(y) is uniform which means } p(y=1)=p(y=0)
+\end{align*}
+
+**** GDA VS Logistic Regression
+
+高斯判别模型类别为 1 的概率表达式等同于逻辑斯蒂回归的判别函数
+\begin{gather*}
+p(y=1|x;\phi, \sum, \mu_0, \mu_1) = \frac{1}{ 1 + exp(-\theta^T x)} \quad \text{(view as a function as x)}\\
+\theta \propto \phi, \sum, \mu_0, \mu_1
+\end{gather*}
+
+GDA 使用的假设更强，当数据符合多元高斯模型的时候效果很好，且需要较少的样本就可以训练好模型。由中心极限定理：在某种一条件
+下，大量随机变量之和的分布逼近于正态分布。所以在样本量很大时候，GDA 算法分类准确率会很高（这里样本量大只是为了让样本总体
+服从高斯分布，与前面需要较少的训练样本并不冲突）。而当数据并不是很符合高斯分布时，使用逻辑斯蒂回归会得到更加鲁棒的模型
+（数据服从多种分布（高斯或泊松等非高斯分布）时仍然可以得到比较好的结果）。并且一般来说当数据是非高斯的有限数据集时，逻辑
+斯蒂回归效果更好。
+
+一般规律，且反推仍然不成立
+\begin{gather*}
+x|y = 1 \sim ExpFamily(\eta_1) \\
+x|y = 0 \sim ExpFamily(\eta_0) \\
+\Longrightarrow p(y=1|x) \sim logistic
+\end{gather*}
 
 *** Support Vector Machines - SVM
 *SVM 的基本思想就是求解能够正确划分训练数据集并且几何间隔最大的分离超平面。* 
@@ -864,10 +933,14 @@ h^*(x) = arg \max_{c \in \mathcal{Y}} P(c) \prod_{i=1}^d P(x_i|c)
 \begin{align}
 P(Y=c_k) & = \frac{\sum_{i=1}^m \mathit{1}(y^{(i)} = c_k)}{m}, \quad k=1,2,\cdots,K \\
 P(X_i = v_{il} | Y = c_k) & = \frac{\sum_{j=1}^m \mathit{1} (x_i^{(j)} = v_{il},y^{(j)}=c_k)}{\sum_{j=1}^{m} 
-\mathit{1} (y^{(j)}=c_k)}, \notag \\
-& i=1,2,\cdots,d; l=1,2,\cdots,S_i; k=1,2,\cdots,K
+\mathit{1} (y^{(j)}=c_k)}, \\
+& i=1,2,\cdots,d; l=1,2,\cdots,S_i; k=1,2,\cdots,K \notag \\
+P(X_i | Y = c_k) & = \text{use distribution function when x is continuous}
 \end{align}
 
+一般朴素贝叶斯用于特征是离散的样本，记得 Andrew NG 还说过要计算连续的随机变量还要将其分段来离散化。但是周志华的书上写计
+算连续随机变量的时候考虑其第 i 个属性的概率密度函数。具体待思考 TODO，其实朴素贝叶斯就是假设属性条件独立，跟变量是连续还
+是离散的好像没有关系。
 
 **** Laplacian Correction
 
@@ -890,6 +963,74 @@ P(X_i = v_{il} | Y = c_k) & = \frac{\sum_{j=1}^m \mathit{1} (x_i^{(j)} = v_{il},
 
 ** Unsupervised Learning
 无监督学习
+*** Mixture of Gaussian
+
+仅有训练样本 \(x^{(1)},\cdots,x^{(m)}\)，但没有相应的类别标签。类别标签作为隐变量，且认为 \( z^{(i)} \sim
+Multinomial(\phi)\) 其中 \(p(z^{(i)} = j) = \phi_j, \text{ and } \sum_{i=1}^k \phi_j = 1\) ；同时 \( (x^{(i)} | z^{(i)}
+=j) \sim \mathcal{N}(\mu_j,\sum_j)\) 。混合高斯模型为 \(x^{(i)}\) 从 \(z^{(i)}\) 的 \(\{1,\cdots,k\}\) 的值中随机选择一
+个类别，然后在该类别的高斯分布中采样得到。不同的类别，其协方差不同。
+
+\begin{align*}
+\ell (\phi,\mu,\sum) & = \sum_{i=1}^m ln p(x^{(i)};\phi,\mu,\sum) \\
+& = \sum_{i=1}^m ln \sum_{z^{(i)}=1}^k p(x^{(i)}|z^{(i)};\mu,\sum) p(z^{(i)};\phi)
+\end{align*}
+
+使用 EM 算法求解，在 E-step ，尝试猜测 \(z^{(i)}\) 的值；在 M-step ，基于 E-step 的猜测更新模型的参数，由于认为在 E-step
+的猜测是正确的使得最大化似然变得容易。
+
+*** Factor Analysis
+
+当特征的维数远远大于样本的个数时，使用混合高斯将变得困难（协方差矩阵不可逆）。
+
++ 改进 1 ：将协方差限制为对角矩阵，此时协方差被限制为轴平行于坐标轴的椭圆，会丢失不同维度之间的相关性
++ 改进 2 ：将协方差限制为单位阵乘以某个常数，此时协方差被限制称圆。
+
+\begin{align*}
+z & \sim \mathcal{N}(0,I) \\
+x|z & \sim \mathcal{N}(\mu + \Lambda z, \psi)
+\end{align*}
+
+\begin{align*}
+z & \sim \mathcal{N} (0, I) \\
+\epsilon & \sim \mathcal{N} (0, \psi) \\
+x & = \mu + \Lambda z + \epsilon
+\end{align*}
+
+
+\begin{align*}
+\ell (\mu, \Lambda, \psi) = ln \prod_{i=1}^m \frac{1}{(2\pi)^{n/2} |\Lambda \Lambda^T + \psi |} 
+exp \left( -\frac{1}{2} (x^{(i)} - \mu)^T (\Lambda \Lambda^T + \psi)^{-1} (x^{(i)} - \mu) \right)
+\end{align*}
+
+\begin{align*}
+\mu_{z^{(i)} | x^{(i)}} & = \Lambda^T (\Lambda \Lambda^T + \psi)^{-1} (x^{(i)} - \mu) \\
+\sum_{z^{(i)} | x^{(i)}} & = I - \Lambda^T (\Lambda \Lambda^T + \psi)^{-1} \Lambda
+\end{align*}
+
+\begin{align*}
+= \frac{1}{ (2\pi)^{k/2} | \sum_{z^{(i)} | x^{(i)} }|^{1/2} } exp \left( -\frac{1}{2} 
+(z^{(i)} - \mu_{z^{(i)} | x^{(i)}})^T \sum_{z^{(i)} | x^{(i)}}^{-1} (z^{(i)} - \mu_{z^{(i)} | x^{(i)}}) \right)
+\end{align*}
+
+*** k-means
+
+k 均值算法用于将无标签样本分成 k 类。算法很简单，首先随机选择 k 个类的中心点，将所有样本分类到距离其最近的中心点，之后重
+新计算此次分类后的中心点，再次将样本重新分类，直到收敛（类别的中心点不再变化）。
+
+\begin{gather*}
+\text{randomly initialize cluster centroids } \mu_1, \mu_2, \cdots, \mu_k \in {\mathbb{R}}^n \\
+c^{(i)} := arg \min_j || x^{(i)} - \mu_j ||^2, \quad i = 1,2,\cdots,m \\
+\mu_j := \frac{ \sum_{i=1}^m \mathit{1}\{c^{(i)} = j\} x^{(i)}}{\sum_{i=1}^m \mathit{1}\{c^{(i)} = j\}}, \quad j=1,2,\cdots,k
+\end{gather*}
+
+收敛性
+\begin{equation*}
+J(c,\mu) = \sum_{i=1}^m ||x^{(i)} - \mu_{c^{(i)}} ||^2
+\end{equation*}
+
+k-mean 是损失 J 上利用坐标下降法来最优化。算法在不断的固定 \(\mu\) ，利用 c 来最小化 J ；然后固定 J ，利用 \(\mu\) 来最
+小化 J 。所以 J 必定单调减小。但是 J 是非凸函数，所以无法保证算法收敛到全局最优解。但通常 k-means 算法都可以很好的工作。
+另外类别个数的选取具有主观性，可以多取几个值，并选取 \(J(c,\mu)\) 最小的那个。
 
 ** Semi-supervised Learning
 半监督学习
@@ -920,8 +1061,6 @@ P(X_i = v_{il} | Y = c_k) & = \frac{\sum_{j=1}^m \mathit{1} (x_i^{(j)} = v_{il},
 + 怎样定义学习得到的结果是成功的？是必须找到目标概念？还是以较大的概率得到目标概念的近似？
 + 学习器如何得到训练样本？学习器自己由实验获取？还是按照某过程随机的生成而不受学习器的控制？
 
-
-中心极限定理：在某种一条件下，大量随机变量之和的分布逼近于正态分布。
 
 learning theory split to two central questions:
 1. can we make sure that Eout(g) is close enough to Ein(g) ?
