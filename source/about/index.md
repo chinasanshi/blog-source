@@ -5,6 +5,9 @@ type: "about"
 comments: false
 ---
 
+
+![Charles-Darwin](Charles-Darwin.jpg)
+
 > 努力做一个开心的人，开心到别人见了你也会觉得幸福！ -- 佚名
 
 > 生命比盖房更需要蓝图 -- 卡内基
