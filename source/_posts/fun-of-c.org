@@ -72,27 +72,27 @@ typedef struct NODE {
 
 //The key is to use the address of the pointer to the node 
 //which is the address of node->link
-int insert(Node **linkp, int new_value)
+int insert(Node **linkp, int value)
 {
     Node *current;
-    Node *new;
+    Node *newNode;
 
     while( ( current = *linkp ) != NULL 
-            &&  current->value < new_value )
+            &&  current->value < value )
     {
         linkp = &current->link;
     }
 
-    new = (Node *)malloc(sizeof(Node));
-    if(NULL == new)
+    newNode = (Node *)malloc(sizeof(Node));
+    if(NULL == newNode)
     {
         return -1;
     }
 
-    new->value = new_value;
+    newNode->value = value;
 
-    new->link = current;
-    *linkp = new;
+    newNode->link = current;
+    *linkp = newNode;
 
     return 1;
 

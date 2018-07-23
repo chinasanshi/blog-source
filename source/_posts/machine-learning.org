@@ -1,12 +1,12 @@
-#+TITLE:       Machine Learning
-#+AUTHOR:      Kyle Three Stones
-#+DATE:        <2018-06-22 Fri 07:19>
-#+EMAIL:       kyleemail@163.com
-#+OPTIONS:     H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t tex:t
-#+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
-#+STARTUP:     latexpreview
-#+TAGS:        机器学习, 统计学习
-#+CATEGORIES:  机器学习
+#+TITLE:         Machine Learning
+#+AUTHOR:        Kyle Three Stones
+#+DATE:          <2018-06-22 Fri 07:19>
+#+EMAIL:         kyleemail@163.com
+#+OPTIONS:       H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t tex:t
+#+HTML_MATHJAX:  align:left indent:5em tagside:left font:Neo-Euler
+#+STARTUP:       latexpreview
+#+TAGS:          机器学习, 统计学习
+#+CATEGORIES:    机器学习
 
 * ML
 *机器学习* machine learning: Field of study that gives computers the ability to learn without being explicitly program.
@@ -961,6 +961,48 @@ P(X_i = v_{il} | Y = c_k) & = \frac{\sum_{j=1}^m \mathit{1} (x_i^{(j)} = v_{il},
 半朴素贝叶斯的基本想法是适当考虑一部分属性间的相互依赖信息，从而即不需要进行完全联合概率计算，又不至于忽略比较强的属性依
 赖关系。
 
+*** K-Nearest Nerghbor
+
+k 近邻 (k-NN) 是一种基本的分类与回归方法。该算法简单直观：给定一个训练数据集，对新输入的实例，在训练集中找到与该实例最近
+邻的 k 个实例（k 一般选择为奇数），这 k 个实例中的多数属于某个类，就把该新输入的实例分到该类。k-NN 算法三个基本要素： k
+的选择、距离度量、分类规则。
+
+k 近邻分类算法：
++ 输入：训练数据集 \(T=\{(x^{(1)},y^{(1)}),(x^{(2)},y^{(2)}),\cdots,(x^{(m)},y^{(m)})\}\) ，且 \(x^{(i)} \in
+  \mathbb{R}^n, \ y^{(i)} \in \{c_1,c_2,\cdots,c_k\}, \ i=1,2,\cdots,m \) 。以及实例 x 的特征
++ 输出：实例 x 所属类别 y
++ 求解：
+  1. 逐个计算 x 与训练集中每个样本点的距离；
+  2. 根据分类决策规则（如多数表决）决定 x 的类别 \(y = arg \max_{c_j} \sum (\mathit{1}(y^{(i)}=c_j))\)
+
+k 值的选择会对 k-NN 算法的结果产生重大的影响。通常采用交叉验证来选择 k 值
++ k 值的减小意味着整体模型变得复杂，容易发生过拟合。预测的结果会对近邻的实例点非常敏感，若近邻的实例点是噪声，结果很可能
+  出错
++ k 值的增大意味着整体模型变得简单。与预测实例较远的样本也将对预测起作用，使预测可能发生错误。
+
+距离度量：
+\begin{align*}
+L_p(x^{(i)},x^{(i)}) &= \left( \sum_{l=1}^n |x_l^{(i)} - x_l^{(i)}|^p \right)^{1/p} \quad L_p \ distance \\
+L_1(x^{(i)},x^{(i)}) &= \sum_{l=1}^n |x_l^{(i)} - x_l^{(i)}| \quad \text{Manhattan distance} \\
+L_2(x^{(i)},x^{(i)}) &= \left( \sum_{l=1}^n |x_l^{(i)} - x_l^{(i)}|^2 \right)^{1/2} \quad \text{Euclidean distance} \\
+L_{\infty}(x^{(i)},x^{(i)}) &= \max_l |x_l^{(i)} - x_l^{(i)}| \quad \text{各个坐标轴距离的最大值}
+\end{align*}
+
+k 近邻搜索：
+实现 k 近邻时，主要考虑的问题是如何对训练数据进行快速 k 近邻搜索。常用方法为 kd 树 (kd-tree)。kd 树树存储 k 维空间数据的
+树结构。
+
+*** Decision Tree
+决策树是一种基本的分类与回归方法。决策树模型成树形结构；可以认为是 if-then 规则的集合，也可以认为是定义在特征空间与类空
+间上的条件概率分布。
+
+主要优点：模型具有可读性、分类速度快
+
+决策树学习通常包括 3 个步骤：特征选择、决策树的生成、决策树的修剪
+
++ 学习时：利用训练数据，根据损失函数最小化的原则建立决策树模型
++ 预测时：用决策树模型对新样本进行分类
+
 ** Unsupervised Learning
 无监督学习
 *** Mixture of Gaussian
@@ -1034,6 +1076,7 @@ k-mean 是损失 J 上利用坐标下降法来最优化。算法在不断的固�
 
 *** Principal Components Analysis
 
+**** 求解
 使用主成分分析 PCA 之前需要先将均值和方差做归一化处理，然后使用奇异值分解(single value decomposition, SVD)的方法来求解
 top k 的特征向量。
 
@@ -1043,21 +1086,64 @@ top k 的特征向量。
 4. 使用 \(x_j^{(i)} / \sigma_j\) 逐一替换 \(x_j^{(i)}\) ；将协方差变为单位阵，方差归一化使得不同的属性拥有相同的尺度。若
    已知不同的属性拥有相同的尺度（如图像都是 [0,255] 的像素点），可跳过此步骤。
 
+\begin{align*}
+X & = \left[ \begin{array}{ccc} -- & x^{(1)} & -- \\ -- & x^{(2)} & -- \\ & \vdots & \\ -- & x^{(m)} & -- 
+\end{array} \right] \\
+\sum & = \sum_{i=1}^m x^{(i)} {x^{(i)}}^T \\
+& = X^T X \\
+& = \left[ \begin{array}{cccc} | & | & & | \\ x^{(1)} & x^{(2)} & \cdots & x^{(m)} \\ | & | & & | \end{array} \right]
+\left[ \begin{array}{ccc} -- & x^{(1)} & -- \\ -- & x^{(2)} & -- \\ & \vdots & \\ -- & x^{(m)} & -- 
+\end{array} \right]
+\end{align*}
 
-PCA 有 9-10 种不同的理解方法。此处使用点到投影的距离的平方和最小。
-投影应尽可能的分散，使得方差尽可能的大。
+SVD ：存在 \(m \geq n\) 和 \(m < n\) 两种情况。且不同的库在求解 SVD 分解时三者的维数会稍有不同（如有些库会省略掉全 0  的
+列）
 
-应用：
+\begin{gather*}
+X_{m \times n} = U_{m \times n} D_{n \times n} {V_{n \times n}}^T \\
+D = \left[ \begin{array}{cccc} \sigma_1 & & & \\ & \sigma_2 & & \\ & & \ddots & \\ & & & \sigma_n \end{array} \right] \\
+\sigma_i \text{ 是 X 的奇异值}
+\end{gather*}
+
+U 的列是 \(X X^T\) 的特征向量； V 的列是 \(X^T X\) 的特征向量。因此 U 的 top K 列就是 \(\sum\) 的 top K 特征向量。
+
+当维数较高时，使用 SVD 求解 PCA 很方便；而直接求取特征向量将变得很困难。如 \(x^{(i)} \in {\mathbb{R}}^{50000}\) 那么
+\(\sum \in {\mathbb{R}}^{50000 \times 50000}\) 的维数就太高了。
+
+**** 推导
+PCA 有 9-10 种不同的理解方法。投影应尽可能的分散，使得方差尽可能的大。因为直觉上协方差包含了样本的信息，我们希望样本投影
+后仍然保持这些协方差信息。使投影点到原点的距离最大（点到投影的距离的平方和最小也可以）可以让样本投影后协方差最大。选择单
+位投影向量 u ，来最大化投影点到原点的距离 \({x^{(i)}}^Tu\) 
+
+\begin{align*}
+\frac{1}{m} \sum_{i=1}^m ({x^{(i)}}^T u)^2 & = \frac{1}{m} \sum_{i=1}^m u^T x^{(i)} {x^{(i)}}^T u \\
+& = u^T \left( \frac{1}{m} \sum_{i=1}^m x^{(i)} {x^{(i)}}^T \right) u \\
+& = u^T \sum u, \quad \sum \text{ is the empirical convariance matrix of the data}
+\end{align*}
+
+如果想要将数据投影到 k 维 (k < n) 子空间，应该选择 \(\sum\) 的 top k 特征向量来作为基 \(u_1,u_2,\cdots,u_k\) ，且这些基
+是正交的（\(\sum\) 是对称的）。用这组新的基来表示数据 \(x^{(i)} \in \mathbb{R}^n\) 
+
+\begin{align*}
+z^{(i)} = \left[ \begin{array}{c} u_1^T x^{(i)} \\ u_2^T x^{(i)} \\ \vdots \\ u_k^T x^{(i)} \end{array} \right] 
+\in \mathbb{R} ^k
+\end{align*}
+
+\(z^{(i)} \in \mathbb{R}^k\) 是 \(x^{(i)}\) 的 k 维（低维）近似表示
+
+**** 应用：
++ 降低维数，简化计算
 + 将高维数据降低到 3 维来可视化
 + 存储高维数据
-+ 降低维数，简化计算
 + 减少特征维数，降低过拟合的可能性（虽然大多数时候使用 PCA 后效果更好，但有点被滥用了；建议使用前评估一下）
 + 降低人脸识别特征的维数，同时也使得相同的人脸之间的距离变得更近。对比两张人脸的相似程度时，并不直接计算两个特征的欧氏距
-  离，而是计算两者在主特征子空间上的距离。两个在原始空间非常远的特征在子空间可能很近。
+  离，而是计算两者在主特征子空间上的距离。 *两个在原始空间非常远的特征在子空间可能很近。*
 + 当特征的不同属性并不独立时，需要去除冗余的属性参数。
 + 删除数据中的噪声。x1、x2 强相关，怎样自动提取出本质特征 u1 ，而 u2 只是垂直方向上的一些噪声
-+ 应用到文本数据，从而剔除噪声，更好的比较文件之间的相似性。如单词 "study" 和 "learn" 如果单纯计算余弦值，两者的相关系数
-  为 0 ，但若将两者投影到特征向量上，两者的相关系数将变为正值，所有相似的文本将变得相关。
++ 应用到文本数据，从而剔除噪声，更好的比较文件之间的相似性。如单词 "study" 和 "learn" ，如果单纯计算余弦值，两者的相关系
+  数为 0 ，但若将两者投影到特征向量上，两者的相关系数将变为正值，所有相似的文本将变得相关。此时使用的方法称为 latent
+  semantic indexing (LSA) [其实就是 PCA，仅仅是换了一个名字而已]。此时将发差归一化将是一个 bad idea ，因为这将大幅增加不
+  常出现的单词的权重。 \( \sin (x^{(i)},x^{(j)}) = \cos \theta = \frac{ {x^{(i)}}^T x^{(j)} }{||x^{(i)}|| ||x^{(j)}||} \)
 
 *** Independent Components Analysis
 
