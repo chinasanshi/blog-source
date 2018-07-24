@@ -1147,13 +1147,60 @@ z^{(i)} = \left[ \begin{array}{c} u_1^T x^{(i)} \\ u_2^T x^{(i)} \\ \vdots \\ u_
 
 *** Independent Components Analysis
 
-独立成分分析(ICA)和主成分分析一样也是找到一组新的基来表示数据，但目的不同。ICA 用于找到样本中的相互独立的组件。
+独立成分分析(ICA)和主成分分析一样也是找到一组新的基来表示数据，但目的不同。ICA 用于找到样本中的相互独立的组件。ICA 要求
+源是非高斯的，否则无法求解。
 
-应用：
+**** 推导
+\(s^{(i)}\) 表示第 i 时刻 n 个独立的源组成的 n 维向量，\(x^{(i)}=As^{(i)}\) 为 i 时刻由 n 个采集系统得到的 n 维样本，矩
+阵 A 称为混合矩阵(mixing matrix) 是未知的，且用 \(W=A^{-1}\) 称为 unmixing matrix ，那么将有 \(s^{(i)}=Wx^{(i)}\) ；同时
+用 \(s_j^{(i)}\) 表示 i 时刻第 j 个独立源，\(W_j^T\) 表示 W 的第 i 行，从而有 \(s_j^{(i)}=w_j^T x^{(i)}\) 。
+
+\begin{gather*}
+p(s)=\prod_{i=1}^n p_s (s_i) \\
+p(x) = \prod_{i=1}^n p_s(w_i^T x) \cdot |W| \\
+g(s) = 1/(1+e^{-s}) \quad \text{use sigmod function as CDF } \\
+\ell (W) = \sum_{i=1}^m \left( \sum_{j=1}^n ln g'(w_j^T x^{(i)} + ln|W| \right) \\
+W := W + \alpha \nabla_W \ell(W) \\
+W := W + \alpha \left( \left[ \begin{array}{c} 1-2g(w_1^Tx^{(i)}) \\ 1-2g(w_2^Tx^{(i)}) \\ \vdots \\ 1-2g(w_n^Tx^{(i)}) 
+\end{array} \right] {x^{(i)}}^T + (W^T)^{-1} \right)
+\end{gather*}
+
+ICA 的关键是依赖数据是非高斯的，如果数据是高斯的，那么数据的旋转将产生歧义，即使有无穷多大的数据也无法恢复 A 或者 W 。
+
+由于源的的概率密度函数未知，所以选择一个累积分布函数，并用该累计分布函数的导数作为源的概率密度函数。选择 CDF 的方法：选
+择一个从 0 到 1 的缓慢变化的函数，且非高斯。sigmod 是一个常用函数，且非高斯，所以较好的选择，并没有其他原因。其他相似的
+函数也可以，sigmod 只是一个常用的合理的选择。
+
+向量 s 的概率密度函数是 \(p_s\) ，且 \(x=As\) ，A 可逆 \(W=A^{-1}\) ，那么 x 的概率密度函数为
+\begin{equation*}
+p_x(x) = p_s(Wx) \cdot |W|
+\end{equation*}
+
+**** ICA ambiguities
+
+ICA 无法得到源的正负号、源的尺度信息、源的顺序。
+
+ICA 源无法为高斯的原因：无论是 x 还是 x' 的分布都是相同的，从而无法区分混合矩阵是 A 还是 A' ；两者的区别是乘以一个 R 矩
+阵，而高斯分布是旋转对称的。
+\begin{gather*}
+s \sim \mathcal{N}(0,I) \\
+x = As \\
+E[xx^T] = E[As(As)^T] = E[Ass^TA^T] = AA^T \\
+x \sim \mathcal{N}(0,I) \\
+RR^T = R^TR = I \quad \text{R is an arbitrary orthogonal matrix} \\
+A'=AR \\
+x'=A's \\
+E[x'(x')^T] = E[A'ss^T(A')^T] = E[ARss^T(AR)^T] = ARR^TA^T = AA^T \\
+x' \sim \mathcal{N}(0,I)
+\end{gather*}
+
+**** 应用：
 + 麦克风阵列将多个不同的声源区分开来
 + 使用电极采集头皮上电压的变化，每个电极采集到的都是所有信号（心跳、眨眼等）的叠加，使用 ICA 去除掉心跳和眨眼的信号，得
   到一个更清晰的脑电图
 + 在自然图像上运行 ICA ，得到独立组件（自然图像是一些独立组件的线性组合）
+
+
 
 ** Semi-supervised Learning
 半监督学习
