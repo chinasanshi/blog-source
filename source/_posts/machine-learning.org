@@ -134,7 +134,8 @@ P(y=0|x;\theta) & = 1 - h_{\theta} (x) \\
 P(y|x;\theta) & = (h_{\theta} (x))^y (1 - h_{\theta} (x))^{1-y}
 \end{align*}
 
-似然函数
+似然函数：损失函数没有选择成算法输出与标记误差的平方，是因为这样的损失函数是非凸的，会有很多局部最优解而无法找到全局最优
+解。
 
 \begin{align*}
 \ell(\theta) & = ln L(\theta) \\
