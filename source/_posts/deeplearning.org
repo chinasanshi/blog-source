@@ -74,9 +74,93 @@ CPU 也有并行化指令，只是没有 GPU 那么擅长。使用 Python 的 nu
 将每个样本 \(x^{(i)}\) 看成一个列向量，然后按列把所有样本堆叠起来组成一个大的矩阵 X 。权重 \(W^T\) 视为行向量，可以让两
 者直接相乘得到 \(W^T X\) ，而不再是逐个样本去计算。
 
-*** 一层神经元网络
+#+BEGIN_SRC python
+import numpy as np
+A = np.array([[1,2,3,4], [5,6,7,8], [9,10,11,12] ])
+print(A.shape)
+cal = A.sum(axis=0) # 按列求和
+row = A.sum(axis=1) # 按行求和
+# numpy 中有广播机制，可以自动扩展向量（按行或者列复制 n 次）
+percentage = 100 * A / (cal.reshape(1,4) # 最好使用 reshape 函数确保
+# 矩阵的维数正确，该函数调用成本很低 O(1)
 
-*** 多层神经元网络
+a = np.random.randn(5) # 
+print(a.shape) # (5,) 是一个秩为 1 的数组，但即不是行向量，也不是列向量；永远不要使用，否则会产生一些很奇怪的 bug
+
+a = np.random.randn(5,1) # 列向量
+a.shape # (5,1)
+a = np.random.randn(1,5) # 行向量
+a.shape # (1,5)
+
+assert(a.shape == (5,1)) # 多多验证
+a = a.reshape((5,1))
+#+END_SRC
+
+*** 两层神经元网络
+
+\(z^{[i]}\) 用于表示网络的第 i 层。
+
+输入层、隐层、输出层。约定俗成， *计算网络的层数的时候，不算输入层，输入层称为第 0 层。*
+\(a^{[0]} = X \) 表示输入层 (a 是 activation)， \(a^{[1]}\) 表示第一个隐层
+\[a^{[1]} = \left[ \begin{array}{c} a_1^{[1]} \\ a_2^{[1]} \\ \ldots \\ a_{m1}^{[1]} \end{array} \right] \]
+
+\[ z_1^{[1]} = {(w_1^{[1]})}^T x + b_1^{[1]}, \ a_1 = sigmoid(z_1^{[1]}) \]
+\[ z_2^{[1]} = {w_2^{[1]}}^T x + b_2^{[1]}, \ a_2 = sigmoid(z_2^{[1]}) \]
+\[ z_3^{[1]} = {w_3^{[1]}}^T x + b_3^{[1]}, \ a_3 = sigmoid(z_3^{[1]}) \]
+\[ z_4^{[1]} = {w_4^{[1]}}^T x + b_4^{[1]}, \ a_4 = sigmoid(z_4^{[1]}) \]
+
+将网络中每一层的相同变量按行堆叠起来组成一个列向量，如 w, b, z, a ，便可以使用向量化计算来提高速度。
+
+\[ W^{[i]} = \left[ \begin{array}{ccc} -- & {w_1^{[i]}}^T & -- \\ -- & {w_2^{[i]}}^T & -- \\ 
+& \vdots & \\ -- & {w_l^{[i]}}^T & -- \end{array} \right] \]
+\[ b^{[i]} = \left[ \begin{array}{c} b_1^{[i]} \\ b_2^{[i]} \\ \vdots \\ b_l^{[i]} \end{array} \right] \]
+\[ z^{[i]} = \left[ \begin{array}{c} z_1^{[i]} \\ z_2^{[i]} \\ \vdots \\ z_l^{[i]} \end{array} \right] \]
+\[ a^{[i]} = \left[ \begin{array}{c} a_1^{[i]} \\ a_2^{[i]} \\ \vdots \\ a_l^{[i]} \end{array} \right] \]
+
+得到向量化公式
+
+\[ z^{[i]} = W^{[i]} a^{[i-1]} + b^{[i]} \]
+\[ a^{[i]} = np.sigmoid(z^{[i]}) \]
+
+多个训练样本
+\[ z^{[i](l)} = W^{[i]} a^{[i-1](l)} + b^{[i]} \]
+\[ a^{[i](l)} = sigmoid(z^{[i](l)}) \]
+
+不同训练样本的值按列堆叠
+
+\[X= \left[ \begin{array}{cccc} | & | & & | \\ x^{(1)} & x^{(2)} & \cdots & x^{(m)} \\ |
+& | & & | \end{array} \right] \]
+
+\[Z^{[i]} = \left[ \begin{array}{cccc} | & | & & | \\ z^{[i](1)} & z^{[i](2)} & \cdots & z^{[i](m)} \\ |
+& | & & | \end{array} \right] \]
+
+\[A^{[i]} = \left[ \begin{array}{cccc} | & | & & | \\ a^{[i](1)} & a^{[i](2)} & \cdots & a^{[i](m)} \\ |
+& | & & | \end{array} \right] \]
+
+A 、Z 的水平方向表示的是不同的样本，垂直方向表示的不同网络某一层中的不同节点。
+
+\[ Z^{[i]} = W[i]A[i-1] + b^{[i]}\]
+\[ A^{[i]} = sigmoid(Z^{[i]}) \]
+
+如果把输入按列堆叠，输出也将按列堆叠。
+
+**** Activation function
+激活函数，不同网络层的激活函数可以不同。
+
+\begin{align*}
+sigmoid(z) & = \frac{1}{ 1-e^{-z} } \\
+tanh(z) & = \frac{ e^z - e^{-z} }{ e^z + e^{-z} }, \quad \text{a shifted version of sigmoid} \\
+ReLU(z) & = \max(0,z) \\
+leaky ReLU(z) & = \max(0.01z,z) \\
+& = \left\{ \begin{array}{} 0.01z, & z < 0 \\ z, & z \geq 0 \end{array} \right.
+\end{align*}
+
+tanh 函数几乎总是比 死规模的 sigmoid 函数的效果要好，因为其均值为 0 ？更有利于后面网络层的学习，类似于将输入样本的均值归
+一化到 0 一样。网络的输出层（二分类）可以使用 sigmoid 函数，其他的时候几乎不要使用。但是两者当 z 很大或者很小的时候，两
+者的梯度变得很小，将减慢网络的学习速度。深度神经网络中，一般都只使用 ReLU 激活函数。另外 leaky ReLU 理论上效果会更好，不
+会一半的导数为 0 ，但实际上很少使用。
+
+*** 深层神经元网络
 
 ** 提升深度神经元网络：超参调节、正则化、最优化
 
