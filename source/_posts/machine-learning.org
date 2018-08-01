@@ -59,7 +59,7 @@
 1. batch gradient descent，批量梯度下降法：每次都需要计算所有样本的误差来更新参数
 2. stochastic gradient descent / incremental gradient descent，随机梯度下降法：每次只需要计算一个样本的误差来更新参数。
    可以较快的收敛，但参数结果可能始终在最优解周围徘徊，但在实际应用中可以满足
-3. mini-batch
+3. mini-batch：每次使用同样个数的一小批的样本来更新权重参数。
 
 ***** Newton's method
 

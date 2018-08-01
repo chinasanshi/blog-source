@@ -1,12 +1,12 @@
-#+TITLE:       Deep Learning
-#+AUTHOR:      Kyle Three Stones
-#+DATE:        <2018-07-12 Thu 07:19>
-#+EMAIL:       kyleemail@163.com
-#+OPTIONS:     H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t tex:t
-#+HTML_MATHJAX: align: left indent: 5em tagside: left font: Neo-Euler
-#+STARTUP: latexpreview
-#+TAGS:        深度学习, 机器学习
-#+CATEGORIES:  深度学习
+#+TITLE:          Deep Learning
+#+AUTHOR:         Kyle Three Stones
+#+DATE:           <2018-07-12 Thu 07:19>
+#+EMAIL:          kyleemail@163.com
+#+OPTIONS:        H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t tex:t
+#+HTML_MATHJAX:   align: left indent: 5em tagside: left font: Neo-Euler
+#+STARTUP:        latexpreview
+#+TAGS:           深度学习, 机器学习
+#+CATEGORIES:     深度学习
 
 1989 年 Robert Hecht-Nielsen 证明了万能逼近定理：对于任何闭区间的一个连续函数都可以用一个隐含层的 BP 网络来逼近（完成任
 意m 维到 n 维的映射）。
@@ -545,10 +545,103 @@ d\theta||_2}{||d\theta_{approx}||_2 + ||d\theta||_2} \] 通常选取 \(\varepsil
 + 不使用 Dropout
 + 在网络训练过一段时候后，再次检查一下；可能网络只在权重比较小的时候是正确的
 
+\begin{gather*}
+f'(\theta) = \lim_{\varepsilon \to 0} \frac{f(\theta + \varepsilon) - f(\theta - \varepsilon)}{2\varepsilon}. \quad 
+error \ O(\varepsilon^2) \\
+f'(\theta) = \lim_{\varepsilon \to 0} \frac{f(\theta + \varepsilon) - f(\theta)}{\varepsilon}. \quad 
+error \ O(\varepsilon) \\
+\end{gather*}
+
+O(n): on the Order of 。表示常数乘以括号中的项
 
 ** 让机器学习工程变得结构化
 
+*** mini-batch gradient descent
 
+当训练数据即非常大的时候（比如有 500 万个样本），使用批量梯度下降法将非常的耗时，因为必须要计算所有的样本后才可以调节参
+数。因此使用 mini-batch 梯度下降法结合了随机梯度下降法和批量梯度下降法两者的优点：可以使用向量话计算同时避免必须计算完所
+有样本后才能更新参数。
+
+将样本特征和标记都分成许多等个数的小段，记为 \(X^{\{t\}}, Y^{\{t\}}\) 。计算过程同批量梯度下降法类似，每一次 mini-batch
+迭代称为一个 epoch 。
+
+mini-batch size 是一个很重的超参，使用时需要快速选择。使用较大的是 64-512 之间的某个 2 的次方数。并且确保 mini-batch
+size fit in 你的 CPU / GPU 的内存。
+
+*** Momentum
+
+通常选取 momentum 参数 \(\beta = 0.9\) ，这是一个比较鲁棒的值。
+
+\begin{align*}
+v_{dW} & = \beta v_{dW} + (1 - \beta)dW \\
+v_{db} & = \beta v_{db} + (1 - \beta)db \\
+
+W & = W - \alpha v_{dW} \\
+b & = b - \alpha v_{db}
+\end{align*}
+
+#+BEGIN_SRC python
+vdW = np.zeros(dW.shape)
+vdb = np.zeros(db.shape)
+# 第 t 次迭代，计算 mini-batch 的 dW db
+vdW = beta * vdW + (1 - beta)dW
+vdb = beta * vdb + (1 - beta)db
+
+W = W - alpha * vdW
+b = b - alpha * vdb
+#+END_SRC
+
+计算得到本次的导数值之后，使用指数加权移动平均来估计过去 10 次迭代的平均值，然后使用平均后的权重值来更新权重。这样将使得
+迭代左右来回摆动得到抑制（细长型的代价函数，每次迭代都会左右摆动，通过计算过去 10 次的平均值，正负得到抵消，左右摆动将会
+被消除很多，相当于给其增加了摩擦力，估计也是称为 momentum 的原因），而使用向最优解移动的方向则不会被抑制。由于仅需经过
+10 次迭代之后就可以消除因为初始化为 0 带来的偏差，通常不需要偏差修正。
+
+
+**** Exponentially Weighted Moving Averages
+
+\[ V_t = \beta V_{t-1} + (1 - \beta) \theta_t \] 指数加权移动平均，大约相当于求取了 \(\frac{1}{1-\beta}\) 个数的平均值
+\( (1-\varepsilon)^{\frac{1}{\varepsilon}} = \frac{1}{\varepsilon}\) 。当 \(\beta\) 较小的时候（比如等于 0.5），平均的数
+量较小，会对当前值有快速的响应，但也会有较大的震荡；当 \(\beta\) 较大的时候（比如等于 0.99），求取了太多数量的平均值，导
+致对当前数值不敏感，最终的曲线会有延后。使用时作为超参来调节。
+
+实际使用时只需要先将 V 初始化成 0，然后有新的值时使用公式 \(V := \beta V + (1-\beta) \theta_i\) 更新 V 即可。这样只需要
+占用一个内存，也很高效；虽然计算并不精确，如果时刻记录过去 50 个的值，然后求和在求平均计算更精确，但比较繁琐，且耗内存。
+Bias correction，由于将 V 初始化成 0，导致最初的估计会存在偏差。可以在求得 V 之后再除以一个修正变量
+\(\frac{V}{1-\beta^t}\) 来代替 \(V\) ，就可以修正因初始值估计不准确而导致的偏差。
+
+*** RMSprop
+
+root mean square prop
+
+\begin{align*}
+s_{dW} & = \beta_2 s_{dW} + (1 - \beta_2) dW^2 \\
+s_{db} & = \beta_2 s_{db} + (1 - \beta_2) db^2 \\
+W & := W - \alpha \frac{dW}{\sqrt{s_{dW} + \varepsilon}} \\
+b & := b - \alpha \frac{db}{\sqrt{s_{db} + \varepsilon}}
+\end{align*}
+
+#+BEGIN_SRC python
+# 第 t 次迭代，计算出 dW db 后
+SdW = beta2*Sdw + (1 - beta2)dW**2 # 逐元素求平凡
+Sdb = beta2*Sdb + (1 - beta2)db**2
+
+W = W - alpha * dW / np.sqrt(SdW + epsilon) # epsilon 是一个很小的值，防止除以 0
+b = b - alpha * db / np.sqrt(Sdb + epsilon) # epsilon 可取 10^(-8)
+#+END_SRC
+
+*** Adam
+
+Adaptive momentum estimation 结合了 Momentum 和 RMSProp 两个算法，需要偏差修正。
+
+\begin{align*}
+
+\end{align*}
+
+超参选择：
++ \(\alpha\) 需要调节
++ \(\beta1 = 0.9\) 
++ \(\beta2 = 0.999\)
++ \(\varepsilon = 10^{-8}\)
 
 ** 卷积神经网络
 
