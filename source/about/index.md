@@ -39,6 +39,8 @@ You only fail when you stop trying.
 
 > 真诚的去夸奖他人！
 
+> YOLO : You only live once, but if you do it right, once is enough. -- Mae West
+
 > Failure is a natural stepping stone towards perfaction.
 Failure and loss are necessary for success. It's the acceptance of failure that's not.
 
