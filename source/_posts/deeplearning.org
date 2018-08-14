@@ -1276,7 +1276,8 @@ J(G) & = \alpha J_{content} (C,G) + \beta J_{style} (S,G) \\
 
 使用序列模型需要先构造字典，字典包含你认为比较重要的词汇。字典中需要有一个表示句子结束的标志 <ESC> ，同时还要有一个标识
 单词不在字典中的标志 <UNK> 。有些商业应用的字典维数可能是 30,000 、50,000 或者 100,000 ，甚至有 1,000,000 或更多。然后依
-据字典，使用 one-hot 向量（只有一个为 1 ，其余全为 0）来表示每个单词。使用 \(x^{(i)<t>}\) 标识第 i 个句子的第 t 个单词。
+据字典，使用 one-hot 向量（只有一个为 1 ，其余全为 0）来表示每个单词。使用 \(x^{(i)\langle t \rangle}\) 标识第 i 个句子
+的第 t 个单词。
 
 *** Recurrent Neural Network
 
@@ -1307,11 +1308,19 @@ RNN 依据输入和输出的维数有 6 中不同的架构： one to one 、one 
 变得非常困难，同时不容易捕捉单词间的关联信息。因此一般都使用单词级别的字典，而不是字母级别的字典。只有在大部分都是专有名
 词时才会使用字母级别的字典。
 
+
 **** GRU
 
 *Gated Recurrent Unit* : 为了让当前的值经过很长时间之后仍然会影响后面的值。引入 memory cell ，让当前的输入可以影响很久之
 后的输出。引入了两个门，决定输入到下一个时间输入的是记忆单元的值还是当前激活值。门的激活函数采用 sigmoid 函数，门的输出
 将很接近 0 或者 1 ，实际中直接使用 0 或者 1 代替经更加便于思考。
+
+\begin{gather*}
+{\widetilde{c}}^{ \langle t \rangle } = tanh(\Gamma_r * W_c [c^{ \langle t-1 \rangle },x^{ \langle t \rangle }]+b_c) \\
+\Gamma_u = \sigma(W_u [c^{ \langle t-1 \rangle },x^{ \langle t \rangle }]+b_u) \\
+\Gamma_r = \sigma(W_r [c^{ \langle t-1 \rangle },x^{ \langle t \rangle }]+b_r) \\
+c^{ \langle t \rangle } = \Gamma_u * {\widetilde{c}}^{ \langle t \rangle } + (1-\Gamma_u) * c^{ \langle t-1 \rangle } 
+\end{gather*}
 
 
 **** LSTM
@@ -1320,9 +1329,45 @@ RNN 依据输入和输出的维数有 6 中不同的架构： one to one 、one 
  制记忆单元和当前的激活值，output gate 控制输出值。此时有前一时间到后一时间的输入变成了两个，一个是记忆单元，另一个是当
  前的激活值。此时记忆单元将很容易通过作为后一时刻的输入而有长时间的影响。
 
+\begin{gather*}
+{\widetilde{c}}^{ \langle t \rangle } = tanh(W_c [a^{ \langle t-1 \rangle },x^{ \langle t \rangle }]+b_c) \\
+\Gamma_u = \sigma(W_u [a^{ \langle t-1 \rangle },x^{ \langle t \rangle }]+b_u) \\
+\Gamma_f = \sigma(W_f [a^{ \langle t-1 \rangle },x^{ \langle t \rangle }]+b_f) \\
+\Gamma_o = \sigma(W_o [a^{ \langle t-1 \rangle },x^{ \langle t \rangle }]+b_o) \\
+c^{ \langle t \rangle } = \Gamma_u * {\widetilde{c}}^{ \langle t \rangle } + \Gamma_f * c^{ \langle t-1 \rangle } \\
+a^{ \langle t \rangle } = \Gamma_o * c^{ \langle t \rangle }
+\end{gather*}
+
 
 **** Deep RNN
 
 将一层 RNN 单元变成多层连接，第一层的输出作为第二层的输入，第二层的输出作为第三层的输入；同时每一层都有到下一时刻的连接。
 由于时间上的连接使得网络变得很复杂，所有通常跨越时间连接的 RNN 不会超过三层。当然可以在三层网络上面继续增加网络来产生输
 出。
+
+*** word embedding
+
+不再使用 one-hot 向量来表示单词，而是找到某些维度的空间，然后使用其中的一个坐标表示一个单词，就好像将单词嵌入该空间的一
+个位置。这样可以度量相似的单词，比如 apple 和 pear 会有很大的相似度，而不像在 one-hot 向量那样完全无关。如果将该空间降维
+到二维来表示，可以发现相似的单词簇拥在一起，如 boy 和 girl 距离很近，同时 boy girl mather father 相比于其他的单词如 book
+bicycle 等，距离也会比较近，因为他们都是人类的称呼。
+
+在网上可以找到很多已经训练好的 Word embedding 模型，直接使用将大大缩短自己的迭代时间。
+
+**** GloVe
+
+global vectors for word representation
+
+\begin{gather*}
+minimize \sum_{i=1}^{100000} \sum_{j=1}^{100000} f(X_{ij}) ( \theta_i^T e_j + b_i - b'_j - \ln X_{ij})^2
+\end{gather*}
+
+**** Sentiment classification
+
+可以使用已经训练好的 word embedding ，将训练样本中评价的单词直接用 word embedding 表示，然后将所有的结果求平均然后使用
+Softmax 分类器产生 1-5 级别的评价。效果还不错。不过无法区分 good 和 not good 中 good 的不同。如果将产生的结果输入 RNN 将
+得到一个更好的结果。
+
+**** Bias in word embedding
+
+有较大的偏见，如性别，医生并不一定是男士，护士也不一定是女士。这些偏见都需要消除。
