@@ -8,13 +8,19 @@ comments: false
 
 ![Charles-Darwin](Charles-Darwin.jpg)
 
+<br />
+<br />
+<br />
+
 > 努力做一个开心的人，开心到别人见了你也会觉得幸福！ -- 佚名
 
 > 生命比盖房更需要蓝图 -- 卡内基
 
 > 抓住了这个主要矛盾，一切问题就迎刃而解了 -- 《毛泽东选集.第一卷》
 
-> Fear is your friend. More often than not it show you exactly what you should do. -- TED
+> Fear is your friend. More often than not it shows you exactly what you should do. -- TED
+
+> The perceived complexity of a task will expand to fill the time you allow it. -- Parkinson's Law
 
 > 机会稍纵即逝，不要犹豫，seize it!
 
