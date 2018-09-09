@@ -22,11 +22,15 @@ comments: false
 
 > The perceived complexity of a task will expand to fill the time you allow it. -- Parkinson's Law
 
-> 机会稍纵即逝，不要犹豫，seize it!
+> A muttonhead, a cretin, a dumbbell and an imbecile. -- TED
+
+> Talent is universal, but opportunities are not. -- TED 机会稍纵即逝，不要犹豫，seize it!
 
 > Be the game changer!
 
 > 自律、自信 Nothing can be don without hope and confidence!
+
+> Good relationships keep us happier and healthier. Period. -- Harvard  Univerisity resech
 
 > 最好的想法几乎是在溺水的时候才想出来，就是在极其挣扎的情况下往往能迸发出好的灵感。 -- Terry Savage
 

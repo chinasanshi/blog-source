@@ -20,7 +20,8 @@
 数据库提供数据管理技术，机器学习提供数据分析技术。
 
 ** Supervised Learning
-监督学习
+
+样本有标签的时候称为监督学习
 
 *** Linear Regression
 
