@@ -65,6 +65,8 @@ org:
   htmlize: false
   clean_cache: true #default false
   debug: true #default false
+  # Make src-block has line-number (this won't make effect on example-block)
+  line_number: true
   
 # Home page setting
 # path: Root path for your blogs index page. (default = '')

@@ -2,6 +2,7 @@
 #+AUTHOR:         Kyle Three Stones
 #+DATE:           <2018-08-24 Fri 07:19>
 #+EMAIL:          kyleemail@163.com
+#+ATTR_HTML:      :width 100%
 #+OPTIONS:        H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t f:t tex:t
 #+TAGS:           目标检测, 深度学习
 #+CATEGORIES:     深度学习
@@ -23,8 +24,18 @@ enough. -- Mae West ，个人感觉作者可能有点故意让两者混淆。
 标检测，所以其最主要的优点就是 *速度* 。而且 mAP (mean Average Precision) 随着算法的改进也表现的相当不错。
 
 而且此时是 R-CNN 盛行的时候，先找到一些候选区域（代替窗口扫描），然后只在这些候选区域上进行检测。多么好的主意。一般人肯
-定都会在思考怎样更加快速有效的提取这些候选区域（fast R-CNN faster R-CNN）。作者居然可以完全另辟蹊径，直接进行检测输出，
-根本无需候选区域，的确大牛。由此也可以看到有些时候一些非常好的思想同样会束缚住我们。
+定都会在思考怎样更加快速有效的提取这些候选区域（Faster R-CNN），或者加快提取特征的速度（Fast R-CNN）。作者居然可以完全另
+辟蹊径，直接进行检测输出，根本无需候选区域，的确大牛。由此也可以看到有些时候一些非常好的思想同样会束缚住我们。
+
+先放三张 YOLOv3 的检测结果： 
+
+[[https://github.com/coldnew/hexo-renderer-org/raw/master/icon.png]]
+
+[[./bottle.jpg]]
+
+[[./person.jpg]]
+
+[[./monkeyking.jpg]]
 
 
 *** 算法
@@ -168,6 +179,10 @@ WordTree。首先将所有只有一条 path 的添加到树中，剩余的节点
 
 Mask R-CNN 最主要的共享在于图像分割，放在这里作为目标检测似乎有点不妥。
 
+效果图：
+
+[[./mask.jpg]]
+
 在 Faster R-CNN 的基础上再增加一个用于分割的 branch ，采用 FCN 全卷积神经网络来对目标进行分割。采用逐元素分类的方法，对
 每个 RoI 输出 kxmxm 个输出，而不是将其整合称一个向量（会损失空间位置信息），其中 k 表示目标的类别的个数，m 是经过
 RoIAlign 之后得到的固定大小。使用二分类来判定每个像素点是否属于某个类别的目标。
@@ -205,3 +220,5 @@ feature maps 进行上采样 upsample ，得到和下层 feature maps 相同的 
 channel 固定为 256 个，首先将最顶层的 feature maps 使用 1x1 卷积将 channel 的个数降低为 256 个，组成特征金字塔的顶层。下
 面层也都会先使用 1x1 卷积将 channel 个数减小为 256 ，然后再与上层的特征逐元素相加得到新的一层。最终得到特征金字塔。在每
 一层上都独立进行目标检测。
+
+RPN 采用 FPN ： 在一个特征层使用一个固定的大小的 anchor （不过仍然有三种比例）

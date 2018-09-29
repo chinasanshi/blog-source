@@ -24,8 +24,9 @@
 18. 刻意练习：成功成才需要多年刻意的练习。特定的目标；专注，不理会无关的事情；反馈；修正；走出舒适区；评价标准；行之有效的练习方法。
 19. 对停止成长的节点保持警惕
 20. ego cogito ergo sum -- 我思故我在
-21. There isn't time, so brief is life, for bickerings, apologies, heartburnings, calling to account. There is only time for loving, and but an instant, so to speak, for that.  -- 马克吐温
-马克吐温说：“生命如此短暂,我们没有时间去争吵、道歉、伤心、斤斤计较,我们只有时间去爱,一切稍纵即逝。”
+21. There isn't time, so brief is life, for bickerings, apologies, heartburnings, calling to account. There is only time
+    for loving, and but an instant, so to speak, for that. -- 马克吐温(马克吐温说：“生命如此短暂,我们没有时间去争吵、道
+    歉、伤心、斤斤计较,我们只有时间去爱,一切稍纵即逝。”)
 22. The good life is built with good relationships. -- 哈佛大学研究。好的人际关系和数量没有关系，质量很重要。自己会认为有一个真正可以依赖的人。
 23. You obey all the rules and you lose all the funs.
 24. Common sense is not that common -- Voltaire "And this especilly appilies application."
@@ -38,6 +39,17 @@
 31. The best learn is by tech.
 32. 如果你的潜意识不愿意做一件事情，那么你的潜意识会不知不觉让你做出损害这件事情的动作。所以一定要完全相信自己能够做到，
     否则自信的不足，会变成潜意识的阻碍。
+33. Fear is your friend. Fear is an indicator. Sometimes it shows you what you shouldn't do. More often than not it show
+    you exactly what you should do. -- Timothy Ferriss
+34. What's the worst that can happen?
+35. Take the analytical frameworks, the capabilities you have, apply them to old fears. Apply them to very big dreams.
+36. The frustration is not that they couldn't achieve their dreams, it's that they were not even able to start chasing
+    them. -- TED
+37. Life Calendar : 每周使用一个小方格，共 90 年。 格子数并不多，而且我们已经使用了很多。-- TED
+38. This long-term kind of procrastination that much less visible and less talked about than the funnier, short-term
+    deadline-based kind. It usally suffered quietly and privately. And it can be the source of a huge amount of
+    long-term unhappiness, and regrets.
+39. Deconstruct 解析-拆分 解构复杂问题的能力
 
 
 ** Rejection
